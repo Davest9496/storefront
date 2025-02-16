@@ -23,5 +23,8 @@
   "bugs": {
     "url": "https://github.com/Davest9496/storefront/issues"
   },
-  "homepage": "https://github.com/Davest9496/storefront#readme"
+  "homepage": "https://github.com/Davest9496/storefront#readme",
+  "engines": {
+    "node": ">=14.0.0"
+  }
 }
