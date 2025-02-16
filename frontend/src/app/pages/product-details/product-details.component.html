@@ -1,0 +1,135 @@
+<!-- Loading State -->
+<div *ngIf="loading" class="product_loading">
+  <div class="product_loading-content">
+    Loading product details...
+  </div>
+</div>
+
+<!-- Error State -->
+<div *ngIf="error" class="product_error">
+  <div class="product_error-content">
+    {{ error }}
+    <button class="product_back" (click)="goBack()">Go Back</button>
+  </div>
+</div>
+
+<!-- Product Content -->
+<div class="product" *ngIf="product && !loading && !error">
+  <!-- Back Button -->
+  <button class="product_back" (click)="goBack()">Go Back</button>
+
+  <!-- Product Header -->
+  <div class="product_header">
+    <picture class="product_image">
+      <source 
+        [srcset]="product.images.desktop" 
+        media="(min-width: 1200px)"
+      >
+      <source 
+        [srcset]="product.images.tablet" 
+        media="(min-width: 768px)"
+      >
+      <img 
+        [src]="product.images.mobile" 
+        [alt]="product.name"
+      >
+    </picture>
+
+    <div class="product_info">
+      <span class="product_new" *ngIf="product.isNew">NEW PRODUCT</span>
+      <h1 class="product_name">{{ product.name }}</h1>
+      <p class="product_description">{{ product.description }}</p>
+      <p class="product_price">£ {{ product.price.toLocaleString() }}</p>
+
+      <!-- Add to Cart Section -->
+      <div class="product_cart">
+        <div class="product_quantity">
+          <button (click)="decrementQuantity()">-</button>
+          <span>{{ quantity }}</span>
+          <button (click)="incrementQuantity()">+</button>
+        </div>
+        <button class="product_add" (click)="addToCart()">ADD TO CART</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="product_content-wrapper">
+    <!-- Features Section -->
+    <div class="product_features">
+      <h2>FEATURES</h2>
+      <article *ngFor="let feature of product.features">
+        <p>{{ feature }}</p>
+      </article>
+    </div>
+
+    <!-- In The Box Section -->
+    <div class="product_box">
+      <h2 class="product_box-title">IN THE BOX</h2>
+      <ul class="product_items">
+        <li *ngFor="let item of product.includes">
+          <span class="product_quantity-label">{{ item.quantity }}x</span>
+          <span class="product_item-name">{{ item.item }}</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Gallery Section -->
+  <div class="product_gallery">
+    <div class="product_gallery-grid">
+      <!-- First Gallery Image -->
+      <picture class="product_gallery-item product_gallery-item--small">
+        <source 
+          [srcset]="getImagePath(1, 'desktop')"
+          media="(min-width: 1200px)"
+        >
+        <source 
+          [srcset]="getImagePath(1, 'tablet')"
+          media="(min-width: 768px)"
+        >
+        <img 
+          [src]="getImagePath(1, 'mobile')"
+          [alt]="product.name + ' gallery image 1'"
+          class="product_gallery-img"
+        >
+      </picture>
+
+      <!-- Second Gallery Image -->
+      <picture class="product_gallery-item product_gallery-item--small">
+        <source 
+          [srcset]="getImagePath(2, 'desktop')"
+          media="(min-width: 1200px)"
+        >
+        <source 
+          [srcset]="getImagePath(2, 'tablet')"
+          media="(min-width: 768px)"
+        >
+        <img 
+          [src]="getImagePath(2, 'mobile')"
+          [alt]="product.name + ' gallery image 2'"
+          class="product_gallery-img"
+        >
+      </picture>
+
+      <!-- Third Gallery Image -->
+      <picture class="product_gallery-item product_gallery-item--large">
+        <source 
+          [srcset]="getImagePath(3, 'desktop')"
+          media="(min-width: 1200px)"
+        >
+        <source 
+          [srcset]="getImagePath(3, 'tablet')"
+          media="(min-width: 768px)"
+        >
+        <img 
+          [src]="getImagePath(3, 'mobile')"
+          [alt]="product.name + ' gallery image 3'"
+          class="product_gallery-img"
+        >
+      </picture>
+    </div>
+  </div>
+</div>
+
+<app-menu *ngIf="!loading && !error"/>
+<app-popular-products *ngIf="!loading && !error"/>

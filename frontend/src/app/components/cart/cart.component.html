@@ -1,0 +1,93 @@
+<div 
+  class="cart-overlay"
+  *ngIf="(cartState$ | async)?.isVisible"
+  (click)="closeCart()"
+></div>
+
+<div 
+  class="cart" 
+  *ngIf="(cartState$ | async) as cartState"
+  [class.visible]="cartState.isVisible"
+>
+  <div class="cart_header">
+    <h2 class="cart_title">CART ({{cartService.getItemCount()}})</h2>
+    <button 
+      class="cart_remove-all"
+      (click)="removeAll()"
+      [class.disabled]="!cartState.items.length"
+    >
+      Remove all
+    </button>
+  </div>
+
+  <div class="cart_items" *ngIf="cartState.items.length > 0">
+    <div 
+      class="cart_item" 
+      *ngFor="let item of cartState.items; trackBy: trackByFn"
+    >
+      <div class="cart_item-image">
+        <img [src]="item.image" [alt]="item.name">
+      </div>
+      <div class="cart_item-details">
+        <h3 class="cart_item-name">{{item.name}}</h3>
+        <p class="cart_item-price">£{{item.price | number}}</p>
+      </div>
+      <div class="cart_item-controls">
+        <div class="cart_item-quantity">
+          <button 
+            class="cart_quantity-btn"
+            (click)="updateQuantity(item.id, item.quantity - 1)"
+            [disabled]="item.quantity <= 0"
+            aria-label="Decrease quantity"
+          >-</button>
+          <span class="cart_quantity-value">{{item.quantity}}</span>
+          <button 
+            class="cart_quantity-btn"
+            (click)="updateQuantity(item.id, item.quantity + 1)"
+            aria-label="Increase quantity"
+          >+</button>
+        </div>
+        <button 
+          class="cart_item-delete"
+          (click)="removeItem(item.id)"
+          aria-label="Remove item from cart"
+        >
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            stroke-width="2" 
+            stroke-linecap="round" 
+            stroke-linejoin="round" 
+            class="cart_delete-icon"
+          >
+            <path d="M3 6h18" />
+            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+            <line x1="10" y1="11" x2="10" y2="17" />
+            <line x1="14" y1="11" x2="14" y2="17" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="cart_empty" *ngIf="!cartState.items.length">
+    <p>Your cart is empty</p>
+  </div>
+
+  <div class="cart_footer" *ngIf="cartState.items.length > 0">
+    <div class="cart_total">
+      <span>TOTAL</span>
+      <span class="cart_total-amount">£{{cartService.getTotal() | number}}</span>
+    </div>
+   <button 
+  class="cart_checkout"
+  (click)="onCheckout()"
+  [disabled]="!cartState.items.length"
+>
+  CHECKOUT
+</button>
+  </div>
+</div>

@@ -1,0 +1,73 @@
+@use '../../../styles/abstracts/variables' as v;
+@use '../../../styles/abstracts/functions' as f;
+@use '../../../styles/abstracts/mixins' as m;
+
+.category-item {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  
+  &_image-container {
+    width: 100%;
+    background-color: f.color('white');
+    border-radius: 0.5rem;
+    overflow: hidden;
+    margin-bottom: 2rem;
+  }
+  
+  &_image {
+    position: relative;
+    display: block;
+    width: 100%;
+    margin-bottom: 2rem;
+    
+    img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+  }
+  
+  &_new {
+    position: absolute;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%); 
+    color: f.color('primary');
+    font-size: 10px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+  }
+  
+  &_content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    justify-content: space-between;
+    text-align: center;
+  }
+  
+ 
+  &_description {
+    margin-bottom: 1rem;
+  }
+  
+  &_name {
+    color: f.color('black');
+    font-size: f.get-font-size('h5');
+    font-weight: f.get-font-weight('bold');
+    letter-spacing: 0.0625rem;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    
+    @include m.medium {
+      font-size: f.get-font-size('h4');
+    }
+  }
+  
+  &_description {
+    color: f.color-with-opacity('black', 0.5);
+    font-size: f.get-font-size('body');
+    line-height: 1.67;
+  }
+}

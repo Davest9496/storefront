@@ -1,0 +1,81 @@
+// menu.component.scss
+@use '../../styles/abstracts/variables' as v;
+@use '../../styles/abstracts/functions' as f;
+@use '../../styles/abstracts/mixins' as m;
+
+.menu {
+    padding: 2rem 1.5rem;
+    
+    @include m.medium {
+        padding: 2rem 2.5rem;
+    }
+    
+    @include m.desktop {
+        padding: 2rem 10%;
+    }
+    
+    &_grid {
+        display: flex;
+        flex-direction: column;
+        gap: 4rem;
+        
+        @include m.medium {
+            flex-direction: row;
+            gap: 1rem;
+        }
+        
+        @include m.desktop {
+            gap: 2rem;
+        }
+    }
+    
+    &_item {
+        background-color: f.color('white');
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        text-align: center;
+        position: relative;
+        flex: 1;
+    }
+    
+    &_image {
+        display: block;
+        width: 160px;
+        margin: -4rem auto 1rem;
+        
+        img {
+            width: 100%;
+            height: auto;
+        }
+    }
+    
+    &_content {
+        margin-top: 2rem;
+    }
+    
+    &_title {
+        color: f.color('black');
+        font-size: f.get-font-size('h6');
+        font-weight: f.get-font-weight('bold');
+        margin-bottom: 1rem;
+    }
+    
+    &_link {
+        color: f.color-with-opacity('black', 0.5);
+        text-decoration: none;
+        font-size: f.get-font-size('small');
+        font-weight: f.get-font-weight('bold');
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: color 0.2s ease;
+        
+        &:hover {
+            color: f.color('primary');
+        }
+    }
+    
+    &_arrow {
+        color: f.color('primary');
+    }
+}

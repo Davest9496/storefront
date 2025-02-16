@@ -1,0 +1,221 @@
+<div class="checkout">
+  <form class="checkout_form" (ngSubmit)="validateForm()">
+    <h1 class="checkout_title">CHECKOUT</h1>
+    
+     <!-- Billing Details Section -->
+    <section class="checkout_section">
+      <h2 class="checkout_section-title">BILLING DETAILS</h2>
+      <div class="checkout_grid">
+        <div class="checkout_field">
+          <label for="name">Name</label>
+          <input 
+            id="name"
+            type="text" 
+            [(ngModel)]="formData.name"
+            (ngModelChange)="onStringInputChange('name', $event)"
+            (focus)="onFieldFocus('name')"
+            name="name"
+            [class.error]="errors['name'].hasError && errors['name'].touched"
+            placeholder="John Smith"
+          >
+          <div *ngIf="errors['name'].hasError && errors['name'].touched" class="error-message">
+            Please enter both first and last name.
+          </div>
+        </div>
+
+        <div class="checkout_field">
+          <label for="email">Email Address</label>
+          <input 
+            id="email"
+            type="email" 
+            [(ngModel)]="formData.email"
+            (ngModelChange)="onStringInputChange('email', $event)"
+            (focus)="onFieldFocus('email')"
+            name="email"
+            [class.error]="errors['email'].hasError && errors['email'].touched"
+            placeholder="john.smith&#64;email.com"
+          >
+          <div *ngIf="errors['email'].hasError && errors['email'].touched" class="error-message">
+            Please enter a valid email address (e.g., name&#64;example.com).
+          </div>
+        </div>
+        
+        <div class="checkout_field">
+          <label for="phone">Phone Number</label>
+          <input 
+            id="phone"
+            type="tel" 
+            [(ngModel)]="formData.phone"
+            (ngModelChange)="onStringInputChange('phone', $event)"
+            (focus)="onFieldFocus('phone')"
+            name="phone"
+            [class.error]="errors['phone'].hasError && errors['phone'].touched"
+            placeholder="07123 456789"
+          >
+          <div *ngIf="errors['phone'].hasError && errors['phone'].touched" class="error-message">
+            Enter a valid UK phone number.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Shipping Info Section -->
+    <section class="checkout_section">
+      <h2 class="checkout_section-title">SHIPPING INFO</h2>
+      <div class="checkout_grid">
+        <div class="checkout_field checkout_field-full">
+          <label for="addressLine1">Your Address</label>
+          <input 
+            id="addressLine1"
+            type="text" 
+            [(ngModel)]="formData.addressLine1"
+            (ngModelChange)="onStringInputChange('addressLine1', $event)"
+            (focus)="onFieldFocus('addressLine1')"
+            name="addressLine1"
+            [class.error]="errors['addressLine1'].hasError && errors['addressLine1'].touched"
+            placeholder="137 Old Kent Road"
+          >
+          <div *ngIf="errors['addressLine1'].hasError && errors['addressLine1'].touched" class="error-message">
+            Address must be at least 5 characters long.
+          </div>
+        </div>
+
+        <div class="checkout_field checkout_field-full">
+          <label for="addressLine2">Address Line 2 (Optional)</label>
+          <input 
+            id="addressLine2"
+            type="text" 
+            [(ngModel)]="formData.addressLine2"
+            (ngModelChange)="onStringInputChange('addressLine2', $event)"
+            (focus)="onFieldFocus('addressLine2')"
+            name="addressLine2"
+            placeholder="Flat 4B"
+          >
+        </div>
+        
+        <div class="checkout_field">
+          <label for="postcode">Post Code</label>
+          <input 
+            id="postcode"
+            type="text" 
+            [(ngModel)]="formData.postcode"
+            (ngModelChange)="onStringInputChange('postcode', $event)"
+            (focus)="onFieldFocus('postcode')"
+            name="postcode"
+            [class.error]="errors['postcode'].hasError && errors['postcode'].touched"
+            placeholder="SE1 5DP"
+          >
+          <div *ngIf="errors['postcode'].hasError && errors['postcode'].touched" class="error-message">
+            Enter a valid UK postcode.
+          </div>
+        </div>
+        
+        <div class="checkout_field">
+          <label for="city">City</label>
+          <input 
+            id="city"
+            type="text" 
+            [(ngModel)]="formData.city"
+            (ngModelChange)="onStringInputChange('city', $event)"
+            (focus)="onFieldFocus('city')"
+            name="city"
+            [class.error]="errors['city'].hasError && errors['city'].touched"
+            placeholder="London"
+          >
+          <div *ngIf="errors['city'].hasError && errors['city'].touched" class="error-message">
+            City is required.
+          </div>
+        </div>
+        
+        <div class="checkout_field">
+          <label for="county">County (Optional)</label>
+          <input 
+            id="county"
+            type="text" 
+            [(ngModel)]="formData.county"
+            (ngModelChange)="onStringInputChange('county', $event)"
+            (focus)="onFieldFocus('county')"
+            name="county"
+            placeholder="Greater London"
+          >
+        </div>
+      </div>
+    </section>
+
+    <!-- Payment Details Section -->
+    <section class="checkout_section">
+      <h2 class="checkout_section-title">PAYMENT DETAILS</h2>
+      <div class="checkout_grid">
+        <div class="checkout_field checkout_field-full">
+          <label>Payment Method</label>
+          <div class="checkout_radio-group">
+            <label class="checkout_radio">
+              <input 
+                type="radio"
+                name="paymentMethod"
+                [(ngModel)]="formData.paymentMethod"
+                (ngModelChange)="onPaymentMethodChange($event)"
+                (focus)="onFieldFocus('paymentMethod')"
+                value="e-Money"
+              >
+              <span class="checkout_radio-text">e-Money</span>
+            </label>
+            
+            <label class="checkout_radio">
+              <input 
+                type="radio"
+                name="paymentMethod"
+                [(ngModel)]="formData.paymentMethod"
+                (ngModelChange)="onPaymentMethodChange($event)"
+                (focus)="onFieldFocus('paymentMethod')"
+                value="cash"
+              >
+              <span class="checkout_radio-text">Cash on Delivery</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Conditional e-Money Fields -->
+        <ng-container *ngIf="showEMoneyFields">
+          <div class="checkout_field">
+            <label for="eMoneyNumber">e-Money Number</label>
+            <input 
+              id="eMoneyNumber"
+              type="text" 
+              [(ngModel)]="formData.eMoneyNumber"
+              (ngModelChange)="onStringInputChange('eMoneyNumber', $event)"
+              (focus)="onFieldFocus('eMoneyNumber')"
+              name="eMoneyNumber"
+              [class.error]="errors['eMoneyNumber'].hasError && errors['eMoneyNumber'].touched"
+              placeholder="238521993"
+              maxlength="9"
+              pattern="\d{9}"
+            >
+            <div *ngIf="errors['eMoneyNumber'].hasError && errors['eMoneyNumber'].touched" class="error-message">
+              Enter a valid 9-digit e-Money Number.
+            </div>
+          </div>
+          
+          <div class="checkout_field">
+            <label for="eMoneyPin">e-Money PIN</label>
+            <input 
+              id="eMoneyPin"
+              type="password" 
+              [(ngModel)]="formData.eMoneyPin"
+              (ngModelChange)="onStringInputChange('eMoneyPin', $event)"
+              (focus)="onFieldFocus('eMoneyPin')"
+              name="eMoneyPin"
+              [class.error]="errors['eMoneyPin'].hasError && errors['eMoneyPin'].touched"
+              placeholder="6891"
+              maxlength="4"
+              pattern="\d{4}"
+            >
+            <div *ngIf="errors['eMoneyPin'].hasError && errors['eMoneyPin'].touched" class="error-message">
+              Enter a valid 4-digit e-Money PIN.
+            </div>
+          </div>
+        </ng-container>
+      </div>
+    </section>
+  </form>
+</div>

@@ -1,0 +1,30 @@
+@use 'sass:map';
+@use 'abstracts/variables' as vars;
+
+@mixin phone {
+  @media (min-width: map.get(vars.$breakpoints, 'sm')) {
+    @content;
+  }
+}
+
+@mixin medium {
+  @media (min-width: map.get(vars.$breakpoints, 'md')) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (min-width: map.get(vars.$breakpoints, 'lg')) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: map.get(vars.$breakpoints, 'xl')) {
+    @content;
+  }
+}
+
+@mixin padding($topBottom, $leftRight:10%) {
+  padding: $topBottom $leftRight;
+}

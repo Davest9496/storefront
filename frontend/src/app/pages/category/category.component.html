@@ -1,0 +1,44 @@
+<!-- Loading state -->
+<div *ngIf="loading" class="category_loading">
+  <div class="category_loading-content">
+    Loading category...
+  </div>
+</div>
+
+<!-- Error state -->
+<div *ngIf="error" class="category_error">
+  <div class="category_error-content">
+    {{ error }}
+    <button 
+      class="category_error-button"
+      routerLink="/"
+    >
+      Return to Home
+    </button>
+  </div>
+</div>
+
+<!-- Category content -->
+<section class="category" *ngIf="category && !loading && !error">
+  <div class="category_header">
+    <h1 class="category_title">{{ category.name }}</h1>
+  </div>
+
+  <div class="category_grid">
+    @for (item of category.items; track trackById) {
+      <app-category-item [item]="item" />
+    }
+  </div>
+</section>
+
+<!-- Not found state -->
+<section *ngIf="!category && !loading && !error" class="category_error">
+  <h2>Category Not Found</h2>
+  <p>We couldn't find the category you're looking for.</p>
+  <button 
+    class="category_error-button"
+    routerLink="/"
+  >
+    Return to Home
+  </button>
+</section>

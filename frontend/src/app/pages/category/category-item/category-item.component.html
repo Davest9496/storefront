@@ -1,0 +1,32 @@
+<!-- src/app/pages/category/category-item/category-item.component.html -->
+
+<article class="category-item">
+  <picture class="category-item_image">
+    <!-- Desktop image -->
+    <source 
+      [srcset]="item.images.desktop" 
+      media="(min-width: 1200px)"
+    >
+    <!-- Tablet image -->
+    <source 
+      [srcset]="item.images.tablet" 
+      media="(min-width: 768px)"
+    >
+    <!-- Mobile image (default) -->
+    <img 
+      [src]="item.images.mobile" 
+      [alt]="item.name"
+      class="category-item_img"
+    >
+    <span *ngIf="item.isNew" class="category-item_new">NEW PRODUCT</span>
+  </picture>
+
+  <div class="category-item_content">
+    <h2 class="category-item_title">{{ item.name }}</h2>
+    <p class="category-item_description">{{ item.description }}</p>
+    <app-button 
+      variant="primary"
+      (onClick)="navigateToProduct()"
+    >SEE PRODUCT</app-button>
+  </div>
+</article>

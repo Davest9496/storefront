@@ -1,0 +1,71 @@
+@use '../../styles/abstracts/variables' as v;
+@use '../../styles/abstracts/functions' as f;
+@use '../../styles/abstracts/mixins' as m;
+
+.popular-products {
+  padding: 2rem 1.5rem;
+  
+  @include m.medium {
+    padding: 2rem 2.5rem;
+  }
+  
+  @include m.desktop {
+    padding: 2rem 10%;
+  }
+  
+  &_title {
+    text-align: center;
+    font-size: f.get-font-size('h5');
+    font-weight: f.get-font-weight('bold');
+    margin-bottom: 2rem;
+    word-spacing: .3rem;
+    
+    @include m.medium {
+      font-size: f.get-font-size('h4');
+      margin-bottom: 3rem;
+    }
+  }
+  
+  &_grid {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+    
+    @include m.medium {
+      flex-direction: row;
+      gap: 1rem;
+    }
+    
+    @include m.desktop {
+      gap: 2rem;
+    }
+  }
+  
+  &_item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  &_image {
+    width: 100%;
+    margin-bottom: 2rem;
+    background-color: f.color('white');
+    border-radius: 0.5rem;
+    overflow: hidden;
+    
+    img {
+      width: 100%;
+      height: auto;
+      object-fit: cover;
+    }
+  }
+  
+  &_name {
+    font-size: f.get-font-size('h5');
+    font-weight: f.get-font-weight('bold');
+    margin-bottom: 2rem;
+  }
+}

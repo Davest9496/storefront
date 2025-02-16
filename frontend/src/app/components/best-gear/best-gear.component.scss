@@ -1,0 +1,84 @@
+@use '../../styles/abstracts/variables' as v;
+@use '../../styles/abstracts/functions' as f;
+@use '../../styles/abstracts/mixins' as m;
+
+.best-gear {
+    padding: 7.5rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+    
+    @include m.medium {
+        padding: 9rem 2.5rem;
+        gap: 3rem;
+    }
+    
+    @include m.desktop {
+        padding: 12rem 10%;
+        flex-direction: row-reverse;
+        align-items: center;
+        gap: 7.5rem;
+    }
+    
+    &_image {
+        display: block;
+        width: 100%;
+        
+        img {
+            width: 100%;
+            height: auto;
+            border-radius: 0.5rem;
+            object-fit: cover;
+        }
+        
+        @include m.desktop {
+            flex: 1;
+        }
+    }
+    
+    &_content {
+        text-align: center;
+        
+        @include m.desktop {
+            flex: 1;
+            text-align: left;
+        }
+    }
+    
+    &_title {
+        font-size: f.get-font-size('h4');
+        font-weight: f.get-font-weight('bold');
+        letter-spacing: 1.5px;
+        margin-bottom: 2rem;
+        text-transform: uppercase;
+        
+        @include m.medium {
+            font-size: f.get-font-size('h2');
+            max-width: 573px;
+            margin: 0 auto 2rem;
+        }
+        
+        @include m.desktop {
+            margin: 0 0 2rem;
+        }
+    }
+    
+    &_highlight {
+        color: f.color('primary');
+    }
+    
+    &_description {
+        color: f.color-with-opacity('black', 0.5);
+        font-size: f.get-font-size('body');
+        line-height: 1.67;
+        
+        @include m.medium {
+            max-width: 573px;
+            margin: 0 auto;
+        }
+        
+        @include m.desktop {
+            margin: 0;
+        }
+    }
+}

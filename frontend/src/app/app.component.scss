@@ -1,0 +1,5 @@
+@use 'abstracts/functions' as f;
+
+.heading {
+  color: f.color('primary');
+}

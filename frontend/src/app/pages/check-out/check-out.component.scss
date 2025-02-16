@@ -1,0 +1,65 @@
+@use "../../styles/abstracts/variables" as v;
+@use "../../styles/abstracts/functions" as f;
+@use "../../styles/abstracts/mixins" as m;
+
+.checkout-page {
+
+  .back-container {
+    padding: 1rem 2rem 0;
+
+    @include m.medium {
+      padding: 1rem 2.5rem 0;
+    }
+
+    @include m.desktop {
+      padding: 1rem 10% 0;
+    }
+  }
+
+  // Back button styling
+  .back-btn {
+    background: none;
+    border: none;
+    color: f.color-with-opacity("black", 0.5);
+    cursor: pointer;
+    font-size: f.get-font-size("body");
+    padding: 0;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: f.color("primary");
+    }
+  }
+
+  &_grid {
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+
+    @include m.medium {
+      padding: 2.5rem;
+    }
+
+    @include m.desktop {
+      padding: 5% 10%;
+      flex-direction: row;
+      gap: 1.5rem;
+    }
+  }
+
+  &_form {
+    border: solid 1px f.color-with-opacity("black", 0.1);
+    border-radius: 0.25rem;
+    flex-basis: 70%;
+    margin-bottom: 2rem;
+  }
+
+  &_summary {
+    @include m.desktop {
+      flex-basis: 30%;
+      align-self: start;
+      position: sticky;
+      top: 8rem;
+    }
+  }
+}

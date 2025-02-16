@@ -1,0 +1,29 @@
+<section class="popular-products">
+  <h2 class="popular-products_title">MOST POPULAR AMONGST CUSTOMERS</h2>
+  <div class="popular-products_grid">
+    <div *ngFor="let product of products; trackBy: trackById" class="popular-products_item">
+      <picture class="popular-products_image">
+        <source 
+          media="(min-width: 1200px)" 
+          [srcset]="product.image.desktop"
+        >
+        <source 
+          media="(min-width: 768px)" 
+          [srcset]="product.image.tablet"
+        >
+        <img 
+          [src]="product.image.mobile" 
+          [alt]="product.name"
+          class="popular-products_img"
+        >
+      </picture>
+      <h3 class="popular-products_name">{{ product.name }}</h3>
+      <!-- Fix the router link syntax -->
+    <app-button 
+        variant="primary" 
+        (click)="navigateToProduct(product.id); $event.preventDefault()">
+        SEE PRODUCT
+      </app-button>
+    </div>
+  </div>
+</section>

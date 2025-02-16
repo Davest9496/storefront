@@ -1,0 +1,136 @@
+@use '../abstracts' as *;
+
+// Font Weights
+$font-weight-regular: 400;
+$font-weight-medium: 500;
+$font-weight-bold: 700;
+
+// Base Typography Setup
+html {
+  font-family: $font-family-base;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+body {
+  font-family: $font-family-base;
+  color: $black;
+}
+
+// Heading Styles (Mobile First)
+h1, .h1 {
+  font-family: $font-family-base;
+  font-size: 2rem;      // 32px
+  line-height: 1.2;
+  font-weight: $font-weight-bold;
+  margin-bottom: 1rem;
+
+  @include tablet {
+    font-size: 2.5rem;  // 40px
+  }
+
+  @include desktop {
+    font-size: 3rem;    // 48px
+  }
+}
+
+h2, .h2 {
+  font-family: $font-family-base;
+  font-size: 1.75rem;   // 28px
+  line-height: 1.3;
+  font-weight: $font-weight-bold;
+  margin-bottom: 0.875rem;
+
+  @include tablet {
+    font-size: 2rem;    // 32px
+  }
+
+  @include desktop {
+    font-size: 2.25rem; // 36px
+  }
+}
+
+h3, .h3 {
+  font-family: $font-family-base;
+  font-size: 1.5rem;    // 24px
+  line-height: 1.4;
+  font-weight: $font-weight-medium;
+  margin-bottom: 0.75rem;
+
+  @include tablet {
+    font-size: 1.75rem; // 28px
+  }
+}
+
+h4, .h4 {
+  font-family: $font-family-base;
+  font-size: 1.25rem;   // 20px
+  line-height: 1.4;
+  font-weight: $font-weight-medium;
+  margin-bottom: 0.625rem;
+
+  @include tablet {
+    font-size: 1.5rem;  // 24px
+  }
+}
+
+h5, .h5 {
+  font-family: $font-family-base;
+  font-size: 1.125rem;  // 18px
+  line-height: 1.5;
+  font-weight: $font-weight-medium;
+  margin-bottom: 0.5rem;
+}
+
+h6, .h6 {
+  font-family: $font-family-base;
+  font-size: 1rem;      // 16px
+  line-height: 1.5;
+  font-weight: $font-weight-medium;
+  margin-bottom: 0.5rem;
+}
+
+// Body Text Styles
+.body-large {
+  font-size: 1.125rem;  // 18px
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.body {
+  font-size: 1rem;      // 16px
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}
+
+.body-small {
+  font-size: 0.875rem;  // 14px
+  line-height: 1.4;
+  margin-bottom: 0.875rem;
+}
+
+// Helper Classes
+.text-bold {
+  font-weight: $font-weight-bold;
+}
+
+.text-medium {
+  font-weight: $font-weight-medium;
+}
+
+.text-regular {
+  font-weight: $font-weight-regular;
+}
+
+// Line Height Classes
+.line-height-tight {
+  line-height: 1.2;
+}
+
+.line-height-normal {
+  line-height: 1.5;
+}
+
+.line-height-loose {
+  line-height: 1.8;
+}

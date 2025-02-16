@@ -1,0 +1,100 @@
+@use '../../../styles/abstracts/variables' as v;
+@use '../../../styles/abstracts/functions' as f;
+@use '../../../styles/abstracts/mixins' as m;
+
+.sign-in-form {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 1.5rem 0;
+
+  @include m.medium {
+    padding: 2rem 0;
+  }
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+  position: relative;
+
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: f.get-font-size('body');
+    font-weight: f.get-font-weight('medium');
+    color: f.color('black');
+    text-align: left;
+    padding-left: 1rem;
+  }
+
+  input {
+    width: 100%;
+    padding: 1rem;
+    border: 1px solid f.color-with-opacity('black', 0.1);
+    border-radius: 0.5rem;
+    font-size: f.get-font-size('body');
+    transition: all 0.2s ease;
+    background-color: transparent;
+
+    &:focus {
+      outline: none;
+      border-color: f.color('primary');
+      box-shadow: 0 0 0 1px f.color('primary');
+    }
+
+    &.error {
+      border-color: red;
+      box-shadow: none;
+    }
+
+    &::placeholder {
+      color: f.color-with-opacity('black', 0.4);
+    }
+  }
+}
+
+.error-message {
+  position: absolute;
+  left: 0;
+  bottom: -1.25rem;
+  font-size: f.get-font-size('small');
+  color: red;
+  opacity: 0.9;
+  transform-origin: left center;
+  animation: slideIn 0.2s ease;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 1rem;
+  margin-top: 1rem;
+  background-color: f.color('primary');
+  color: f.color('white');
+  border: none;
+  border-radius: 0.5rem;
+  font-size: f.get-font-size('small');
+  font-weight: f.get-font-weight('bold');
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background-color: f.color('secondary');
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 0.9;
+    transform: translateY(0);
+  }
+}

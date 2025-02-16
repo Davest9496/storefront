@@ -1,0 +1,41 @@
+<section class="product">
+  <div *ngFor="let product of products" [class]="product.class">
+    <ng-container *ngIf="product.class === 'product_featured'; else standardProduct">
+      <div class="product_featured-image">
+        <img [src]="product.pattern" alt="" class="product_pattern">
+        <picture>
+          <source [srcset]="product.image.desktop" media="(min-width: 1200px)">
+          <source [srcset]="product.image.tablet" media="(min-width: 768px)">
+          <img [src]="product.image.mobile" [alt]="product.name" class="product_img">
+        </picture>
+      </div>
+      <div class="product_content">
+        <h2>{{ product.name }}</h2>
+        <p>{{ product.description }}</p>
+        <app-button 
+          variant="dark" 
+          [routerLink]="['/product', product.id]"
+        >
+          SEE PRODUCT
+        </app-button>
+      </div>
+    </ng-container>
+
+    <ng-template #standardProduct>
+      <picture>
+        <source [srcset]="product.image.desktop" media="(min-width: 1200px)">
+        <source [srcset]="product.image.tablet" media="(min-width: 768px)">
+        <img [src]="product.image.mobile" [alt]="product.name" class="product_img">
+      </picture>
+      <div class="product_content">
+        <h2>{{ product.name }}</h2>
+        <app-button 
+          variant="outline" 
+          [routerLink]="['/product', product.id]"
+        >
+          SEE PRODUCT
+        </app-button>
+      </div>
+    </ng-template>
+  </div>
+</section>

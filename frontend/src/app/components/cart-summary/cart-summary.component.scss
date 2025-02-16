@@ -1,0 +1,194 @@
+@use '../../styles/abstracts/variables' as v;
+@use '../../styles/abstracts/functions' as f;
+@use '../../styles/abstracts/mixins' as m;
+
+.summary {
+  border: solid 1px f.color-with-opacity('black', 0.1);
+  border-radius: .25rem;
+  padding: 1.5rem;
+  
+  @include m.medium {
+    padding: 1.5rem;
+  }
+  
+  &_title {
+    font-size: f.get-font-size('h6');
+    font-weight: f.get-font-weight('bold');
+    margin-bottom: 2rem;
+  }
+  
+  // Items List
+  &_items {
+    list-style: none;
+    margin-bottom: 2rem;
+  }
+  
+  &_item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+  
+  &_item-image {
+    width: 4rem;
+    height: 4rem;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+  
+  &_item-details {
+    flex: 1;
+  }
+  
+  &_item-name {
+    font-size: f.get-font-size('small');
+    font-weight: f.get-font-weight('bold');
+    margin-bottom: 0.25rem;
+  }
+  
+  &_item-price {
+    font-size: f.get-font-size('small');
+    color: f.color-with-opacity('black', 0.5);
+  }
+  
+  &_item-quantity {
+    font-size: f.get-font-size('small');
+    color: f.color-with-opacity('black', 0.5);
+  }
+  
+  // Cost Breakdown
+  &_costs {
+    margin-bottom: 2rem;
+  }
+  
+  &_cost-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+    
+    &--total {
+      margin-top: 1.5rem;
+    }
+  }
+  
+  &_cost-label {
+    font-size: f.get-font-size('small');
+    color: f.color-with-opacity('black', 0.5);
+    text-transform: uppercase;
+  }
+  
+  &_cost-value {
+    font-size: f.get-font-size('small');
+    font-weight: f.get-font-weight('bold');
+    
+    &--highlight {
+      color: f.color('primary');
+    }
+  }
+  
+  // Button
+  &_button {
+    position: relative;
+    width: 100%;
+    padding: 1rem;
+    background-color: f.color('primary');
+    color: f.color('white');
+    border: none;
+    font-size: f.get-font-size('small');
+    font-weight: f.get-font-weight('bold');
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+
+    // Tablet sizing adjustments
+    @include m.medium {
+        padding: 1.25rem;
+        font-size: f.get-font-size('body');
+    }
+
+    // Desktop enhancements
+    @include m.desktop {
+        padding: 1.5rem;
+        &:hover:not(:disabled) {
+            background-color: f.color('secondary');
+        }
+    }
+
+    // Disabled state styling
+    &:disabled {
+        background-color: f.color-with-opacity('primary', 0.5);
+        cursor: not-allowed;
+    }
+
+    // Loading spinner animation
+    .spinner {
+        display: inline-block;
+        width: 1.25rem;
+        height: 1.25rem;
+        margin-right: 0.75rem;
+        border: 2px solid f.color('white');
+        border-top-color: transparent;
+        border-radius: 50%;
+        vertical-align: middle;
+        animation: spinner-rotation 0.8s linear infinite;
+
+        // Increase spinner size for larger screens
+        @include m.medium {
+            width: 1.5rem;
+            height: 1.5rem;
+        }
+    }
+}
+
+// Keyframes for the spinner rotation
+@keyframes spinner-rotation {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+  }
+  
+  // Tablet Styles
+  @include m.medium {
+    &_title {
+      font-size: f.get-font-size('h5');
+    }
+    
+    &_item-image {
+      width: 4.5rem;
+      height: 4.5rem;
+    }
+  }
+  
+  // Desktop Styles
+  @include m.desktop {
+    &_costs {
+      margin-bottom: 2.5rem;
+    }
+    
+    &_cost-row {
+      margin-bottom: 0.75rem;
+      
+      &--total {
+        margin-top: 2rem;
+      }
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist/tests",
+    "noImplicitAny": false,
+    "types": ["node", "jasmine"]
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/tests/**/*.ts",
+    "src/tests/**/*.spec.ts",
+    "src/tests/helpers/**/*.ts"
+  ],
+  "exclude": ["node_modules", "dist"]
+}

@@ -1,0 +1,29 @@
+<section class="hero">
+    <picture class="hero_image">
+        <!-- Desktop image (1200px and up) -->
+        <source
+            media="(min-width: 1200px)"
+            srcset="assets/home/desktop/image-hero.jpg"
+        >
+        <!-- Tablet image (768px to 1199px) -->
+        <source
+            media="(min-width: 768px)"
+            srcset="assets/home/tablet/image-hero.jpg"
+        >
+        <!-- Mobile image (default) -->
+        <img
+            src="assets/home/mobile/image-hero.jpg"
+            alt="XX99 Mark II Headphones"
+            class="hero_img"
+        >
+    </picture>
+    
+    <div class="hero_content">
+        <p class="hero_new">NEW PRODUCT</p>
+        <h1 class="hero_title">XX99 MARK II HEADPHONES</h1>
+        <p class="hero_description">
+            Experience natural, lifelike audio and exceptional build quality made for the passionate music enthusiast.
+        </p>
+        <app-button variant="primary" [routerLink]="['/product', 'xx99-mark-two']">SEE PRODUCT</app-button>
+    </div>
+</section>

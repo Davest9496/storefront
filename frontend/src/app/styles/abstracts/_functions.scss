@@ -1,0 +1,37 @@
+@use 'sass:map';
+@use 'abstracts/variables' as v;
+
+// Get color from map
+@function color($color-name) {
+  @if map.has-key(v.$colors, $color-name) {
+    @return map.get(v.$colors, $color-name);
+  } @else {
+    @warn "Color `#{$color-name}` not found.";
+    @return null;
+  }
+}
+
+// Color with opacity
+@function color-with-opacity($color-name, $opacity) {
+  $color: color($color-name);
+  @if $color {
+    @return rgba($color, $opacity);
+  }
+  @return null;
+}
+
+// Font size
+@function get-font-size($size-name) {
+  @if map.has-key(v.$font-sizes, $size-name) {
+    @return map.get(v.$font-sizes, $size-name);
+  }
+  @return null;
+}
+
+// Font weight
+@function get-font-weight($weight-name) {
+  @if map.has-key(v.$font-weights, $weight-name) {
+    @return map.get(v.$font-weights, $weight-name);
+  }
+  @return null;
+}

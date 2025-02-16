@@ -1,0 +1,79 @@
+@use '../../../styles/abstracts/variables' as v;
+@use '../../../styles/abstracts/functions' as f;
+@use '../../../styles/abstracts/mixins' as m;
+
+.sign-up-form {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 1.5rem;
+
+  @include m.medium {
+    padding: 2rem;
+  }
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: f.get-font-size('small');
+    font-weight: f.get-font-weight('medium');
+    color: f.color('black');
+    text-align: left;
+    padding-left: 1rem;
+  }
+
+  input {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: 1px solid f.color-with-opacity('black', 0.2);
+    border-radius: 0.5rem;
+    font-size: f.get-font-size('body');
+    transition: border-color 0.2s ease;
+
+    &:focus {
+      outline: none;
+      border-color: f.color('primary');
+    }
+
+    &.error {
+      border-color: red;
+    }
+
+    &::placeholder {
+      color: f.color-with-opacity('black', 0.4);
+    }
+  }
+}
+
+.error-message {
+  margin-top: 0.5rem;
+  color: red;
+  font-size: f.get-font-size('small');
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 1rem;
+  background-color: f.color('primary');
+  color: f.color('white');
+  border: none;
+  border-radius: 0.5rem;
+  font-size: f.get-font-size('small');
+  font-weight: f.get-font-weight('bold');
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background-color: f.color('secondary');
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+}

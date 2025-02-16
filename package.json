@@ -1,0 +1,27 @@
+{
+  "name": "storefront",
+  "version": "1.0.0",
+  "description": "Full-stack e-commerce website",
+  "main": "index.js",
+  "scripts": {
+    "frontend:install": "cd frontend && npm install",
+    "backend:install": "cd backend_api && npm install",
+    "frontend:build": "cd frontend && npm run build",
+    "backend:build": "cd backend_api && npm run build",
+    "install:all": "npm run frontend:install && npm run backend:install",
+    "backend:lint": "cd backend_api && npm run lint",
+    "backend:test": "cd backend_api && npm run test",
+    "frontend:deploy": "cd frontend && npm run deploy:s3",
+    "backend:deploy": "cd backend_api && npm run deploy"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Davest9496/storefront.git"
+  },
+  "author": "Dave Ejezie",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Davest9496/storefront/issues"
+  },
+  "homepage": "https://github.com/Davest9496/storefront#readme"
+}

@@ -1,0 +1,149 @@
+@use '../../styles/abstracts/variables' as v;
+@use '../../styles/abstracts/functions' as f;
+@use '../../styles/abstracts/mixins' as m;
+
+.footer {
+  background-color: f.color('black');
+  color: f.color('white');
+  padding: 3rem 10%;
+  text-align: center;
+
+  &_hr {
+    width: 100px;
+    height: 5px;
+    background-color: f.color('primary');
+    border: none;
+    margin: 0 auto;
+    margin-bottom: 3rem;
+
+    @include m.medium {
+      margin-left: 0;
+    }
+  }
+
+  &_content {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    align-items: center;
+
+    @include m.medium {
+      align-items: stretch;
+    }
+  }
+
+  &_nav {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    align-items: center;
+
+    @include m.medium {
+      text-align: left;
+      align-items: flex-start;
+    }
+
+    @include m.desktop {
+      flex-direction: row;
+      justify-content: space-between;
+    }
+  }
+
+  &_logo {
+    font-family: 'Montserrat', sans-serif;
+    font-size: f.get-font-size('h4');
+    font-weight: f.get-font-weight('bold');
+    text-transform: lowercase;
+  }
+
+  &_brand {
+    width: 100%;
+
+    @include m.desktop {
+      width: 550px;
+    }
+  }
+
+  &_text {
+    font-size: f.get-font-size('body');
+    line-height: 1.8;
+    opacity: 0.5;
+    max-width: 540px;
+
+    @include m.medium {
+      text-align: left;
+      min-width: 100%;
+    }
+
+    @include m.desktop {
+      max-width: none;
+    }
+  }
+
+  &_links {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    align-items: center;
+
+    @include m.medium {
+      flex-direction: row;
+    }
+
+    @include m.desktop {
+      justify-content: flex-end;
+    }
+
+    li a {
+      color: f.color('white');
+      text-decoration: none;
+      text-transform: uppercase;
+      font-size: f.get-font-size('small');
+      letter-spacing: 2px;
+
+      &:hover {
+        color: f.color('primary');
+      }
+    }
+  }
+
+  &_wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    align-items: center;
+
+    @include m.medium {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      text-align: left;
+    }
+  }
+
+  &_copyright {
+    font-size: f.get-font-size('small');
+    opacity: 0.5;
+  }
+
+  &_social {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+
+    @include m.desktop {
+      transform: translateY(-70px);
+    }
+
+    a {
+      color: f.color('white');
+      font-size: 1.5rem;
+
+      &:hover {
+        color: f.color('primary');
+      }
+    }
+  }
+}

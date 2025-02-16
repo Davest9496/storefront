@@ -1,0 +1,55 @@
+<!-- menu.component.html -->
+<section class="menu">
+    <div class="menu_grid">
+        <!-- Headphones -->
+        <div class="menu_item">
+            <picture class="menu_image">
+                <img 
+                    src="assets/shared/desktop/image-category-thumbnail-headphones.png" 
+                    alt="Headphones"
+                    class="menu_img">
+            </picture>
+            <div class="menu_content">
+                <h2 class="menu_title">HEADPHONES</h2>
+                <a class="menu_link" [routerLink]="['/category', 'headphones']">
+                    SHOP
+                    <span class="menu_arrow">></span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Speakers -->
+        <div class="menu_item">
+            <picture class="menu_image">
+                <img 
+                    src="assets/shared/desktop/image-category-thumbnail-speakers.png"
+                    alt="Speakers"
+                    class="menu_img">
+            </picture>
+            <div class="menu_content">
+                <h2 class="menu_title">SPEAKERS</h2>
+                <a class="menu_link" [routerLink]="['/category', 'speakers']">
+                    SHOP
+                    <span class="menu_arrow">></span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Earphones -->
+        <div class="menu_item">
+            <picture class="menu_image">
+                <img 
+                    src="assets/shared/desktop/image-category-thumbnail-earphones.png" 
+                    alt="Earphones"
+                    class="menu_img">
+            </picture>
+            <div class="menu_content">
+                <h2 class="menu_title">EARPHONES</h2>
+                <a class="menu_link" [routerLink]="['/category', 'earphones']">
+                    SHOP
+                    <span class="menu_arrow">></span>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,55 @@
+<section class="summary">
+  <h2 class="summary_title">SUMMARY</h2>
+  
+  <!-- Cart Items List -->
+  <ul class="summary_items">
+    @for (item of items; track item.id) {
+      <li class="summary_item">
+        <picture class="summary_item-image">
+          <img [src]="item.image" [alt]="item.name">
+        </picture>
+        <div class="summary_item-details">
+          <h3 class="summary_item-name">{{ item.name }}</h3>
+          <p class="summary_item-price">£ {{ item.price | number }}</p>
+        </div>
+        <span class="summary_item-quantity">x{{ item.quantity }}</span>
+      </li>
+    }
+  </ul>
+  
+  <!-- Cost Breakdown -->
+  <div class="summary_costs">
+    <div class="summary_cost-row">
+      <span class="summary_cost-label">TOTAL</span>
+      <span class="summary_cost-value">£ {{ subtotal | number }}</span>
+    </div>
+    
+    <div class="summary_cost-row">
+      <span class="summary_cost-label">SHIPPING</span>
+      <span class="summary_cost-value">£ {{ shippingCost | number }}</span>
+    </div>
+    
+    <div class="summary_cost-row">
+      <span class="summary_cost-label">VAT (INCLUDED)</span>
+      <span class="summary_cost-value">£ {{ vat | number }}</span>
+    </div>
+    
+    <div class="summary_cost-row summary_cost-row--total">
+      <span class="summary_cost-label">GRAND TOTAL</span>
+      <span class="summary_cost-value summary_cost-value--highlight">
+        £ {{ grandTotal | number }}
+      </span>
+    </div>
+  </div>
+  
+ <button 
+    class="summary_button" 
+    (click)="handleCheckout()"
+    [disabled]="!formStatusChange || loading"
+  >
+    <ng-container *ngIf="!loading">CONTINUE & PAY</ng-container>
+    <ng-container *ngIf="loading">
+      <span class="spinner"></span> Processing...
+    </ng-container>
+  </button>
+</section>

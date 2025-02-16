@@ -1,0 +1,15 @@
+<button
+      [type]="type"
+      [disabled]="disabled"
+      [ngClass]="[
+        'btn',
+        'btn-' + variant,
+        'btn-' + size,
+        fullWidth ? 'btn-full' : ''
+      ]"
+      (click)="onClick.emit()"
+    >
+      <span class="btn-content">
+        <ng-content></ng-content>
+      </span>
+    </button>

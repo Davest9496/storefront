@@ -1,0 +1,94 @@
+@use '../../styles/abstracts/variables' as v;
+@use '../../styles/abstracts/functions' as f;
+@use '../../styles/abstracts/mixins' as m;
+
+.auth {
+  min-height: calc(100vh - 8rem); // Adjust based on header height
+  padding: 2rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: f.color('white');
+
+  @include m.medium {
+    padding: 3rem 2.5rem;
+  }
+
+  @include m.desktop {
+    padding: 4rem 10%;
+  }
+
+  &_container {
+    width: 100%;
+    max-width: 450px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  &_title {
+    font-size: f.get-font-size('h3');
+    font-weight: f.get-font-weight('bold');
+    color: f.color('black');
+    margin-bottom: 2rem;
+
+    @include m.medium {
+      font-size: f.get-font-size('h2');
+    }
+  }
+
+  &_toggle {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding: 0.5rem;
+    background-color: f.color-with-opacity('black', 0.05);
+    border-radius: 0.5rem;
+
+    button {
+      flex: 1;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 0.25rem;
+      font-size: f.get-font-size('small');
+      font-weight: f.get-font-weight('medium');
+      color: f.color-with-opacity('black', 0.6);
+      background: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &.active {
+        background-color: f.color('white');
+        color: f.color('black');
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      &:hover:not(.active) {
+        color: f.color('black');
+      }
+    }
+  }
+
+  &_form {
+    margin-bottom: 1.5rem;
+  }
+
+  &_switch {
+    font-size: f.get-font-size('small');
+    color: f.color-with-opacity('black', 0.6);
+
+    &-btn {
+      background: none;
+      border: none;
+      padding: 0;
+      margin-left: 0.5rem;
+      color: f.color('primary');
+      font-weight: f.get-font-weight('medium');
+      cursor: pointer;
+      transition: color 0.2s ease;
+
+      &:hover {
+        color: f.color('secondary');
+      }
+    }
+  }
+}

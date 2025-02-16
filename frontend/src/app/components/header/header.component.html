@@ -1,0 +1,149 @@
+<header class="header">
+    <nav class="header_nav">
+        <!-- Toggle Menu Button with Dynamic Icon -->
+        <button 
+            class="header_menu-btn" 
+            (click)="toggleMenu()"
+            [attr.aria-expanded]="isMenuOpen"
+            aria-controls="navigation-menu"
+        >
+            @if (!isMenuOpen) {
+                <img 
+                    src="assets/shared/tablet/icon-hamburger.svg" 
+                    alt="Open menu"
+                    class="header_menu-icon"
+                />
+            } @else {
+                <span class="header_menu-icon">Ⓧ</span>
+            }
+        </button>
+        
+        <!-- Logo with Home Link -->
+        <h3 class="header_logo" routerLink="/" (click)="closeMenu()">storefront</h3>
+        
+        <!-- Navigation Links -->
+        <ul 
+            id="navigation-menu"
+            class="header_links" 
+            [class.active]="isMenuOpen"
+            role="menu"
+        >
+            <li role="menuitem">
+                <a 
+                    routerLink="/" 
+                    routerLinkActive="active" 
+                    [routerLinkActiveOptions]="{exact: true}"
+                    (click)="closeMenu()"
+                >home</a>
+            </li>
+            <li role="menuitem">
+                <a 
+                    routerLink="/category/speakers" 
+                    routerLinkActive="active"
+                    (click)="closeMenu()"
+                >speakers</a>
+            </li>
+            <li role="menuitem">
+                <a 
+                    routerLink="/category/headphones" 
+                    routerLinkActive="active"
+                    (click)="closeMenu()"
+                >headphones</a>
+            </li>
+            <li role="menuitem">
+                <a 
+                    routerLink="/category/earphones" 
+                    routerLinkActive="active"
+                    (click)="closeMenu()"
+                >earphones</a>
+            </li>
+        </ul>
+
+        <!-- Profile -->
+<div class="header_profile"
+     (mouseenter)="onProfileHover(true)"
+     (mouseleave)="onProfileHover(false)">
+    <button 
+        class="header_profile-btn"
+        (click)="toggleProfileDropdown($event)"
+        aria-label="User profile menu"
+        [attr.aria-expanded]="isProfileDropdownOpen"
+    >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="header_profile-icon">
+            <path 
+                fill="currentColor" 
+                d="M12 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6 8a6 6 0 1 1 12 0A6 6 0 0 1 6 8zm2 10a3 3 0 0 0-3 3 1 1 0 1 1-2 0 5 5 0 0 1 5-5h8a5 5 0 0 1 5 5 1 1 0 1 1-2 0 3 3 0 0 0-3-3H8z"
+            />
+        </svg>
+    </button>
+    
+    <div 
+        class="header_profile-dropdown" 
+        [class.active]="isProfileDropdownOpen"
+        (click)="$event.stopPropagation()"
+    >
+        @if (authService.isLoggedIn() | async) {
+            <div class="header_profile-info">
+                <div class="header_profile-avatar">
+                    <svg viewBox="0 0 24 24" class="header_profile-avatar-icon">
+                        <path 
+                            fill="currentColor" 
+                            d="M12 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6 8a6 6 0 1 1 12 0A6 6 0 0 1 6 8zm2 10a3 3 0 0 0-3 3 1 1 0 1 1-2 0 5 5 0 0 1 5-5h8a5 5 0 0 1 5 5 1 1 0 1 1-2 0 3 3 0 0 0-3-3H8z"
+                        />
+                    </svg>
+                </div>
+                <span class="header_profile-name">
+                    {{ (authService.getCurrentUser() | async)?.name }}
+                </span>
+            </div>
+            <hr class="header_profile-divider">
+            <ul class="header_profile-menu">
+                <li>
+                    <a routerLink="/profile" 
+                   (click)="closeProfileDropdown()">Update Profile</a>
+                </li>
+                <li>
+                    <a routerLink="/profile/password" (click)="closeProfileDropdown()">Change Password</a>
+                </li>
+                <li>
+                    <button (click)="authService.logout()"; (click)="closeProfileDropdown()">Logout</button>
+                </li>
+            </ul>
+        } @else {
+            <ul class="header_profile-menu">
+                <li>
+                    <a routerLink="/auth/login" (click)="closeProfileDropdown()">Login</a>
+                </li>
+                <li>
+                    <a routerLink="/auth/register" (click)="closeProfileDropdown()">Register</a>
+                </li>
+            </ul>
+        }
+    </div>
+</div>
+        
+        <!-- Shopping Cart Button -->
+        <button 
+            class="header_cart"
+            aria-label="View shopping cart"
+            (click)="toggleCart()"
+        >
+            <div class="header_cart-wrapper">
+                <img 
+                    src="assets/shared/desktop/icon-cart.svg" 
+                    alt="Shopping cart" 
+                    class="header_cart-icon"
+                >
+                @if (cartService.getCartState() | async; as state) {
+                    @if (hasItems(state)) {
+                        <span class="header_cart-badge">
+                            {{getItemCount(state)}}
+                        </span>
+                    }
+                }
+            </div>
+        </button>
+    </nav>
+    <hr class="header_hr">
+    <app-cart/>
+</header>

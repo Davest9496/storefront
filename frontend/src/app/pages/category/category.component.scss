@@ -1,0 +1,147 @@
+@use '../../styles/abstracts/variables' as v;
+@use '../../styles/abstracts/functions' as f;
+@use '../../styles/abstracts/mixins' as m;
+
+.category {
+  &_loading,
+  &_error {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+    padding: 2rem 1.5rem;
+    
+    @include m.medium {
+      padding: 2rem 2.5rem;
+    }
+    
+    @include m.desktop {
+      padding: 2rem 10%;
+    }
+  }
+
+  &_loading-content,
+  &_error-content {
+    text-align: center;
+  }
+
+  &_error-content {
+    color: f.color('primary');
+    
+    button {
+      margin-top: 1rem;
+    }
+  }
+
+  &_error-button {
+    background-color: f.color('primary');
+    border: none;
+    color: f.color('white');
+    cursor: pointer;
+    font-size: f.get-font-size('small');
+    font-weight: f.get-font-weight('bold');
+    letter-spacing: 1px;
+    padding: 1rem 2rem;
+    text-transform: uppercase;
+    transition: background-color 0.2s ease;
+    
+    &:hover {
+      background-color: f.color('secondary');
+    }
+  }
+  
+  &_header {
+    background-color: f.color('black');
+    padding: 2rem 1.5rem;
+    margin-bottom: 4rem;
+    
+    @include m.medium {
+      padding: 3rem 2.5rem;
+      margin-bottom: 7.5rem;
+    }
+    
+    @include m.desktop {
+      padding: 4rem 10%;
+      margin-bottom: 10rem;
+    }
+  }
+
+  &_title {
+    color: f.color('white');
+    font-size: f.get-font-size('h4');
+    font-weight: f.get-font-weight('bold');
+    text-align: center;
+    text-transform: uppercase;
+    margin: 0;
+    
+    @include m.medium {
+      font-size: f.get-font-size('h3');
+    }
+  }
+
+  // Grid container with responsive columns
+  &_grid {
+    padding: 0 1.5rem;
+    display: grid;
+    gap: 4rem;
+    
+    // Mobile: 1 column (default)
+    grid-template-columns: 1fr;
+    
+    // Medium screens: 2 columns
+    @include m.phone {
+      padding: 0 2rem;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 3rem;
+    }
+    
+    // Tablet: 3 columns
+    @include m.tablet {
+      padding: 0 2.5rem;
+      grid-template-columns: repeat(3, 1fr);
+    }
+    
+    // Desktop: 4 columns
+    @include m.desktop {
+      padding: 0 10%;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4rem;
+    }
+  }
+}
+
+
+.category_error {
+  padding: 4rem 1.5rem;
+  text-align: center;
+  
+  h2 {
+    color: f.color('black');
+    font-size: f.get-font-size('h4');
+    font-weight: f.get-font-weight('bold');
+    margin-bottom: 1rem;
+  }
+  
+  p {
+    color: f.color-with-opacity('black', 0.5);
+    font-size: f.get-font-size('body');
+    margin-bottom: 2rem;
+  }
+  
+  &-button {
+    background-color: f.color('primary');
+    border: none;
+    color: f.color('white');
+    cursor: pointer;
+    font-size: f.get-font-size('small');
+    font-weight: f.get-font-weight('bold');
+    letter-spacing: 1px;
+    padding: 1rem 2rem;
+    text-transform: uppercase;
+    transition: background-color 0.2s ease;
+    
+    &:hover {
+      background-color: f.color('secondary');
+    }
+  }
+}

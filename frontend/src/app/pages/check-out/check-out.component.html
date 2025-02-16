@@ -1,0 +1,24 @@
+<div class="checkout-page">
+  <!-- Back Button -->
+  <div class="back-container">
+    <button class="back-btn" (click)="goBack()">Go Back</button>
+  </div>
+
+  <div class="checkout-page_grid">
+    <!-- Checkout Form Section -->
+    <div class="checkout-page_form">
+      <app-checkout-form
+        (formStatusChange)="onFormStatusChange($event)"
+        (formValuesChange)="onFormValuesChange($event)"
+      ></app-checkout-form>
+    </div>
+
+    <!-- Summary Section -->
+    <div class="checkout-page_summary">
+      <app-summary
+        [checkoutForm]="checkoutForm"
+        [formStatusChange]="formStatus"
+      ></app-summary>
+    </div>
+  </div>
+</div>
