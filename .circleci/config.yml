@@ -21,4 +21,4 @@ jobs:
       - run:
           name: Front-End Build
           command: |
-            npm run frontebd:build
+            npm run frontend:build
