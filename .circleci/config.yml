@@ -23,10 +23,10 @@ jobs:
             cd ..
       - run:
           name: Install Backend
-          command: npm install:backend
+          command: npm backend:install
       - run:
           name: Backend Lint
-          command: npm run backen:lint
+          command: npm run backend:lint
       - run:
           name: Front-End Build
           command: |
@@ -87,10 +87,7 @@ jobs:
 workflows:
   build-hold-deploy:
     jobs:
-      - build:
-          filters:
-            branches:
-              only: master
+      - build
       - hold:
           type: approval
           requires:
@@ -98,3 +95,6 @@ workflows:
       - deploy:
           requires:
             - hold
+          filters:
+            branches:
+              only: master
