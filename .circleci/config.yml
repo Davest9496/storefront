@@ -17,7 +17,7 @@ jobs:
 
       - run:
           name: Install Angular CLI 19.0.4
-          command: npm install -g @angular/cli@19.0.4
+          command: sudo npm install -g @angular/cli@19.0.4
 
       - run:
           name: Front-End Install
