@@ -5,7 +5,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build --configuration production",
-    "deploy:s3": "chmod +x ./bin/deploy.sh && ./bin/deploy.sh",
+    "deploy:s3": "chmod +x ./bin/deploy.sh && ./bin/deploy.sh"
   },
   "private": true,
   "dependencies": {
