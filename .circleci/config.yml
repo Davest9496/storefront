@@ -6,7 +6,7 @@ orbs:
 jobs:
   build:
     docker:
-      - image: "cimg/node:20.10"
+      - image: "cimg/node:20.11.1"  # Update to a compatible Node version
     steps:
       - checkout
       - run:
@@ -20,7 +20,7 @@ jobs:
           name: Install All Dependencies
           command: |
             npm run install:all
-            npm install -g @angular/cli
+            cd frontend && npm install @angular-devkit/build-angular  # Explicitly install the missing package
       - run:
           name: Frontend Build
           command: npm run frontend:build
@@ -49,10 +49,13 @@ jobs:
       - aws-cli/setup:
           profile-name: default
       - run:
-          name: Install Node.js
-          command: |
-            curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-            sudo apt-get install -y nodejs
+                name: Install Node.js
+                command: |
+                  curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+                  sudo apt-get install -y nodejs
+                  # Set the specific Node version
+                  sudo npm install -g n
+                  sudo n 20.11.1
       - run:
           name: Install Elastic Beanstalk CLI
           command: |
