@@ -8,20 +8,9 @@ if [ -f "../../setup_env.sh" ]; then
   source ../../setup_env.sh
 fi
 
-# Ensure AWS region is set
-if [ -z "$AWS_DEFAULT_REGION" ]; then
-    export AWS_DEFAULT_REGION="us-east-1"
-    echo "ℹ️ AWS region not set, defaulting to: $AWS_DEFAULT_REGION"
-fi
-
 BUCKET_NAME="project-058264347310"
-REGION=$AWS_DEFAULT_REGION
+REGION=${AWS_DEFAULT_REGION:-"us-east-1"}
 DIST_FOLDER="dist/browser"
-
-# Verify AWS configuration
-echo "🔧 AWS Configuration:"
-echo "Region: $REGION"
-echo "Bucket: $BUCKET_NAME"
 
 echo "🔍 Checking bucket existence..."
 if ! aws s3 ls "s3://$BUCKET_NAME" 2>&1 > /dev/null; then

@@ -1,3 +1,4 @@
+// app.routes.ts
 import { Routes } from '@angular/router';
 import { ScrollGuard } from './guards/scroll.guard';
 
