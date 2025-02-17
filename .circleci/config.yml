@@ -16,8 +16,8 @@ jobs:
           command: sudo npm install -g npm@10.2.3 
 
       - run:
-          name: Install Angular CLI 19.0.4
-          command: sudo npm install -g @angular/cli@19.0.4
+          name: Use Local Angular CLI
+          command: cd storefront_frontend && npx ng version
 
       - run:
           name: Front-End Install
@@ -29,4 +29,4 @@ jobs:
 
       - run:
           name: Front-End Build
-          command: npm run frontend:build
+          command: cd storefront_frontend && npx ng build --configuration production
