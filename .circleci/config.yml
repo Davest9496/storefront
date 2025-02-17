@@ -19,12 +19,18 @@ jobs:
       - run:
           name: Install All Dependencies
           command: |
-            sudo npm install -g @angular/cli
+            sudo npm install -g @angular/cli@19.1.7
             npm run install:all
-            cd frontend && npm install @angular-devkit/build-angular
+      - run:
+          name: Install Angular Builder
+          command: |
+            cd frontend
+            npm install --save-dev @angular-devkit/build-angular@19.1.7
       - run:
           name: Frontend Build
-          command: npm run frontend:build
+          command: |
+            cd frontend
+            npx ng build --project storefront-frontend
       - run:
           name: Backend Build
           command: npm run backend:build
