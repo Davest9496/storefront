@@ -20,20 +20,23 @@ jobs:
             # Install Angular CLI globally
             sudo npm install -g @angular/cli@19.1.7
             
-            # Install root dependencies
+            # Go to frontend directory
+            cd frontend
+            
+            # Clean install
+            rm -rf node_modules package-lock.json
+            
+            # Install production dependencies first
             npm install
             
-            # Install frontend dependencies explicitly
-            cd frontend
-            rm -rf node_modules package-lock.json
-            npm install --legacy-peer-deps
+            # Install dev dependencies explicitly
+            npm install --save-dev @angular-devkit/build-angular@19.1.7
+            npm install --save-dev @angular/cli@19.1.7
+            npm install --save-dev @angular/compiler-cli@19.1.6
             
             # Show installed packages for debugging
             echo "Showing installed packages:"
             npm list --depth=0
-            
-            # Try to build using global Angular CLI
-            ng build
       - run:
           name: Install Angular Builder
           command: |
