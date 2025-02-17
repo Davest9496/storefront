@@ -4,14 +4,14 @@
   "description": "Full-stack e-commerce website",
   "main": "index.js",
   "scripts": {
-    "frontend:install": "cd frontend && npm install",
+    "frontend:install": "cd storefront_frontend && npm install",
     "backend:install": "cd backend_api && npm install",
-    "frontend:build": "cd frontend && npm run build",
+    "frontend:build": "cd storefront_frontend && npm run build",
     "backend:build": "cd backend_api && npm run build",
-    "install:all": "npm run frontend:install && npm run backend:install",
+    "install:all": "npm run storefront_frontend:install && npm run backend:install",
     "backend:lint": "cd backend_api && npm run lint",
     "backend:test": "cd backend_api && npm run test",
-    "frontend:deploy": "cd frontend && npm run deploy:s3",
+    "frontend:deploy": "cd storefront_frontend && npm run deploy:s3",
     "backend:deploy": "cd backend_api && npm run deploy"
   },
   "repository": {
