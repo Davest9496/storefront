@@ -10,19 +10,23 @@ jobs:
       - image: cimg/node:20.11.1
     steps:
       - checkout
+
       - run:
           name: Install npm 10.2.3
-          command: |
-            sudo npm install -g npm@10.2.3 
+          command: sudo npm install -g npm@10.2.3 
+
+      - run:
+          name: Install Angular CLI 19.0.4
+          command: npm install -g @angular/cli@19.0.4
+
       - run:
           name: Front-End Install
-          command: |
-            npm run frontend:install
+          command: npm run frontend:install
+
       - run:
           name: Back-End Install
-          command: |
-            npm run backend:install
+          command: npm run backend:install
+
       - run:
           name: Front-End Build
-          command: |
-            npm run frontend:build
+          command: npm run frontend:build
