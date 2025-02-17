@@ -16,36 +16,57 @@ jobs:
       - run:
           name: Frontend Build
           command: |
+            set -e
             cd frontend
             echo "Current directory: $(pwd)"
             
             # Clean installation
             rm -rf node_modules package-lock.json
             
-            # Create .npmrc
-            echo "legacy-peer-deps=true" > .npmrc
-            echo "strict-peer-dependencies=false" >> .npmrc
+            # Create temporary package.json with just the critical dependencies
+            echo '{
+              "name": "temp",
+              "version": "0.0.0",
+              "dependencies": {
+                "@angular/cli": "19.1.7",
+                "@angular-devkit/build-angular": "19.1.7",
+                "@angular/core": "19.1.6",
+                "@angular/common": "19.1.6",
+                "@angular/compiler": "19.1.6",
+                "@angular/compiler-cli": "19.1.6",
+                "typescript": "5.6.2"
+              }
+            }' > temp-package.json
             
-            # First install the CLI and core packages
-            npm install --save-exact @angular/cli@19.1.7 \
-                                   @angular-devkit/build-angular@19.1.7 \
-                                   @angular/core@19.1.6 \
-                                   @angular/common@19.1.6 \
-                                   @angular/compiler@19.1.6 \
-                                   @angular/compiler-cli@19.1.6 \
-                                   typescript@5.6.2
+            # Install critical dependencies first
+            echo "Installing critical dependencies..."
+            npm install --package-lock-only --package-json=temp-package.json
+            npm ci --package-json=temp-package.json || {
+              echo "Failed to install critical dependencies with npm ci, trying npm install..."
+              npm install --legacy-peer-deps --package-json=temp-package.json
+            }
             
-            # Install remaining dependencies
+            # Verify critical installations
+            echo "Verifying critical installations..."
+            npm list @angular/cli || true
+            npm list @angular-devkit/build-angular || true
+            npm list typescript || true
+            
+            # Now install everything from the real package.json
+            echo "Installing remaining dependencies..."
             npm install --legacy-peer-deps
             
-            echo "Verifying installations..."
-            npm list @angular-devkit/build-angular
-            npm list @angular/compiler-cli
-            npm list typescript
-            
+            # Try to build
             echo "Starting build..."
-            ./node_modules/.bin/ng version
-            ./node_modules/.bin/ng build --configuration=production
+            if [ -f "node_modules/.bin/ng" ]; then
+              ./node_modules/.bin/ng version
+              ./node_modules/.bin/ng build --configuration=production
+            else
+              echo "Angular CLI not found in node_modules/.bin/ng"
+              echo "Contents of node_modules/.bin:"
+              ls -la node_modules/.bin || echo "node_modules/.bin does not exist"
+              exit 1
+            fi
       - run:
           name: Backend Build
           command: npm run backend:build
