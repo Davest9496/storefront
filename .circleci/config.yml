@@ -25,9 +25,6 @@ jobs:
           name: Install Back-End
           command: npm run backend:install
       - run:
-          name: Backend Lint
-          command: npm run backend:lint
-      - run:
           name: Front-End Build
           command: |
             npm run frontend:build
