@@ -6,7 +6,7 @@ orbs:
 jobs:
   build:
     docker:
-      - image: "cimg/node:20.11.1"  # Update to a compatible Node version
+      - image: "cimg/node:20.11.1"
     steps:
       - checkout
       - run:
@@ -19,8 +19,9 @@ jobs:
       - run:
           name: Install All Dependencies
           command: |
+            sudo npm install -g @angular/cli
             npm run install:all
-            cd frontend && npm install @angular-devkit/build-angular  # Explicitly install the missing package
+            cd frontend && npm install @angular-devkit/build-angular
       - run:
           name: Frontend Build
           command: npm run frontend:build
