@@ -22,8 +22,8 @@ jobs:
             sudo npm link @angular/cli
             cd ..
       - run:
-          name: Install Backend
-          command: npm backend:install
+          name: Install Back-End
+          command: npm run backend:install
       - run:
           name: Backend Lint
           command: npm run backend:lint
