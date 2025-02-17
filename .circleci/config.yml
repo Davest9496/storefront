@@ -24,28 +24,33 @@ jobs:
             cd frontend
             echo "Current directory: $(pwd)"
             rm -rf node_modules package-lock.json
-            # Create fresh package-lock.json
-            npm install --package-lock-only
-            # Install dependencies with specific strategy
-            npm ci || npm install --legacy-peer-deps
-            # Install critical packages explicitly if needed
-            if [ ! -d "node_modules/@angular" ]; then
-              echo "Forcing critical package installations..."
-              npm install --save-exact @angular/cli@19.1.7
-              npm install --save-exact @angular/core@19.1.6
-              npm install --save-exact @angular/compiler-cli@19.1.6
-              npm install --save-exact @angular-devkit/build-angular@19.1.7
-              npm install --save-exact typescript@5.6.2
-            fi
-            # Verify installations
+            
+            # Install dependencies in specific order
+            echo "Installing Angular CLI..."
+            npm install @angular/cli@19.1.7
+            
+            echo "Installing core dependencies..."
+            npm install --save-exact @angular/core@19.1.6 \
+                                   @angular/common@19.1.6 \
+                                   @angular/compiler@19.1.6 \
+                                   @angular/compiler-cli@19.1.6 \
+                                   @angular-devkit/build-angular@19.1.7 \
+                                   typescript@5.6.2
+            
+            echo "Installing remaining dependencies..."
+            npm install --legacy-peer-deps
+            
+            echo "Verifying Angular CLI installation..."
+            ls -la node_modules/.bin/ng
+            
             echo "Verifying critical packages:"
-            npm list @angular/cli || true
-            npm list @angular-devkit/build-angular || true
-            npm list @angular/compiler-cli || true
-            npm list typescript || true
-            # Run build using npx
+            npm list @angular/cli
+            npm list @angular-devkit/build-angular
+            npm list @angular/compiler-cli
+            npm list typescript
+            
             echo "Starting build..."
-            npx --no-install ng build
+            node_modules/.bin/ng build --configuration=production
       - run:
           name: Backend Build
           command: npm run backend:build
