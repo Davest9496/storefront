@@ -15,16 +15,23 @@ jobs:
             sudo npm install -g npm@8.19.4
             sudo npm install -g @angular/cli@19.1.7
             npm --version
-            ng version
       - run:
           name: Frontend Build
           command: |
             cd frontend
             rm -rf node_modules package-lock.json
+            # Install dependencies in specific order
+            npm install --save-exact typescript@5.6.2
+            npm install --save-exact @angular/compiler-cli@19.1.6
+            npm install --save-exact @angular-devkit/build-angular@19.1.7
             npm install --legacy-peer-deps
-            export PATH="$PATH:./node_modules/.bin"
-            ng version
-            ng build
+            # Verify critical packages
+            echo "Verifying installations:"
+            npm list @angular-devkit/build-angular
+            npm list @angular/compiler-cli
+            npm list typescript
+            # Build using local ng
+            ./node_modules/.bin/ng build
       - run:
           name: Backend Build
           command: npm run backend:build
