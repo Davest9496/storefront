@@ -16,12 +16,13 @@ jobs:
           command: sudo npm install -g npm@10.2.3 
 
       - run:
+          name: Front-End Install
+          command: npm run frontend:install
+          
+      - run:
           name: Use Local Angular CLI
           command: cd storefront_frontend && npx ng version
 
-      - run:
-          name: Front-End Install
-          command: npm run frontend:install
 
       - run:
           name: Back-End Install
