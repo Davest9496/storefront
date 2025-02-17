@@ -11,6 +11,9 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Install npm
+          command: sudo npm install -g npm@11.1.0
+      - run:
           name: Install Angular cli
           command: |
             sudo npm install -g @angular/cli
