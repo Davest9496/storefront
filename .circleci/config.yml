@@ -9,29 +9,36 @@ jobs:
       - image: "cimg/node:20.11.1"
     steps:
       - checkout
+      - restore_cache:
+          keys:
+            - deps-{{ checksum "frontend/package.json" }}
       - run:
           name: Setup Environment
           command: |
             sudo npm install -g npm@8.19.4
-            sudo npm install -g @angular/cli@19.1.7
-            npm --version
       - run:
           name: Frontend Build
           command: |
             cd frontend
             rm -rf node_modules package-lock.json
-            # Install dependencies in specific order
-            npm install --save-exact typescript@5.6.2
+            # Install exact versions to ensure compatibility
+            npm install --save-exact @angular/cli@19.1.7
+            npm install --save-exact @angular/core@19.1.6
+            npm install --save-exact @angular/common@19.1.6
+            npm install --save-exact @angular/compiler@19.1.6
             npm install --save-exact @angular/compiler-cli@19.1.6
             npm install --save-exact @angular-devkit/build-angular@19.1.7
+            npm install --save-exact typescript@5.6.2
+            # Install remaining dependencies
             npm install --legacy-peer-deps
-            # Verify critical packages
-            echo "Verifying installations:"
+            # Verify installations
+            echo "Verifying critical packages:"
+            npm list @angular/cli
             npm list @angular-devkit/build-angular
             npm list @angular/compiler-cli
             npm list typescript
-            # Build using local ng
-            ./node_modules/.bin/ng build
+            # Build using npx
+            npx ng build
       - run:
           name: Backend Build
           command: npm run backend:build
@@ -39,5 +46,7 @@ jobs:
           name: Backend Lint
           command: npm run backend:lint
       - save_cache:
-          paths: [frontend/node_modules, backend_api/node_modules]
-          key: deps-{{ checksum "package.json" }}
+          paths: 
+            - frontend/node_modules
+            - backend_api/node_modules
+          key: deps-{{ checksum "frontend/package.json" }}
