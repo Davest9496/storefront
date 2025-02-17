@@ -24,9 +24,11 @@ jobs:
       - run:
           name: Install Back-End
           command: |
-            npm run backend:install
             cd backend_api
-            npm install --save-dev @types/node @types/express @types/pg @types/body-parser @types/jsonwebtoken
+            rm -rf node_modules package-lock.json
+            npm cache clean --force
+            npm install
+            npm run install-types
             cd ..
       - run:
           name: Front-End Build

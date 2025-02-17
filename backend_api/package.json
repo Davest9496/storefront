@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node dist/server.js",
     "dev": "nodemon --exec ts-node src/server.ts",
-    "build": "tsc",
+    "install-types": "npm install --save-dev @types/node @types/express @types/pg @types/body-parser @types/jsonwebtoken",
+    "build": "npm run install-types && tsc",
     "rebuild": "npm i && npm run build",
     "test": "NODE_ENV=test ts-node -r tsconfig-paths/register ./node_modules/jasmine/bin/jasmine --config=spec/support/jasmine.json",
     "test:watch": "NODE_ENV=test nodemon --exec 'npm run test'",
@@ -48,6 +49,7 @@
     "@types/express": "^5.0.0",
     "@types/jasmine": "^5.1.6",
     "@types/jsonwebtoken": "^9.0.7",
+    "@types/body-parser": "^1.19.5",
     "@types/node": "^22.13.1",
     "@types/pg": "^8.11.11",
     "@types/supertest": "^6.0.2",
