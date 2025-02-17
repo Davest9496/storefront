@@ -9,9 +9,8 @@ jobs:
     docker:
         - image: circleci/node:14.17
     steps:
+      - node/install
       - checkout
-      - node/install-packages:
-          package-manager: npm
       - run:
           name: Front-End Install
           command: |
