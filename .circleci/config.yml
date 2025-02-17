@@ -15,7 +15,9 @@ jobs:
           command: npm install
       - run:
           name: Front-End Build
-          command: npm run frontend:build
+          command: |
+            npm link @angular/cli
+            npm run frontend:build
       - run:
           name: Back-End Build
           command: npm run backend:build
