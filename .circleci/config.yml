@@ -18,31 +18,37 @@ jobs:
           command: |
             cd frontend
             echo "Current directory: $(pwd)"
+            
+            # Remove existing installations
             rm -rf node_modules package-lock.json
             
-            # Install CLI and core packages first
-            echo "Installing Angular CLI and core packages..."
-            npm install --save-exact @angular/cli@19.1.7 \
-                                   @angular/core@19.1.6 \
-                                   @angular/common@19.1.6 \
-                                   @angular/compiler@19.1.6 \
-                                   @angular/compiler-cli@19.1.6 \
-                                   @angular-devkit/build-angular@19.1.7 \
-                                   typescript@5.6.2
+            # Install global Angular CLI first
+            echo "Installing global Angular CLI..."
+            sudo npm install -g @angular/cli@19.1.7
             
-            echo "Verifying @angular/cli installation..."
-            npm list @angular/cli || true
+            # Create .npmrc
+            echo "legacy-peer-deps=true" > .npmrc
+            echo "strict-peer-dependencies=false" >> .npmrc
             
-            echo "Checking for ng executable..."
-            ls -la node_modules/@angular/cli/bin/
+            # Install dependencies
+            echo "Installing dependencies..."
+            npm install --save-exact @angular/cli@19.1.7
+            npm install --save-exact @angular/core@19.1.6
+            npm install --save-exact @angular/common@19.1.6
+            npm install --save-exact @angular/compiler@19.1.6
+            npm install --save-exact @angular/compiler-cli@19.1.6
+            npm install --save-exact @angular-devkit/build-angular@19.1.7
+            npm install --save-exact typescript@5.6.2
             
-            # Install remaining dependencies
-            echo "Installing remaining dependencies..."
+            # Install remaining packages
             npm install --legacy-peer-deps
             
+            echo "Verifying installations..."
+            which ng
+            ng version
+            
             echo "Starting build..."
-            node_modules/.bin/ng version
-            node_modules/.bin/ng build
+            ng build --configuration=production
       - run:
           name: Backend Build
           command: npm run backend:build
