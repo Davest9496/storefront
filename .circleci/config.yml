@@ -19,36 +19,33 @@ jobs:
             cd frontend
             echo "Current directory: $(pwd)"
             
-            # Remove existing installations
+            # Clean installation
             rm -rf node_modules package-lock.json
-            
-            # Install global Angular CLI first
-            echo "Installing global Angular CLI..."
-            sudo npm install -g @angular/cli@19.1.7
             
             # Create .npmrc
             echo "legacy-peer-deps=true" > .npmrc
             echo "strict-peer-dependencies=false" >> .npmrc
             
-            # Install dependencies
-            echo "Installing dependencies..."
-            npm install --save-exact @angular/cli@19.1.7
-            npm install --save-exact @angular/core@19.1.6
-            npm install --save-exact @angular/common@19.1.6
-            npm install --save-exact @angular/compiler@19.1.6
-            npm install --save-exact @angular/compiler-cli@19.1.6
-            npm install --save-exact @angular-devkit/build-angular@19.1.7
-            npm install --save-exact typescript@5.6.2
+            # First install the CLI and core packages
+            npm install --save-exact @angular/cli@19.1.7 \
+                                   @angular-devkit/build-angular@19.1.7 \
+                                   @angular/core@19.1.6 \
+                                   @angular/common@19.1.6 \
+                                   @angular/compiler@19.1.6 \
+                                   @angular/compiler-cli@19.1.6 \
+                                   typescript@5.6.2
             
-            # Install remaining packages
+            # Install remaining dependencies
             npm install --legacy-peer-deps
             
             echo "Verifying installations..."
-            which ng
-            ng version
+            npm list @angular-devkit/build-angular
+            npm list @angular/compiler-cli
+            npm list typescript
             
             echo "Starting build..."
-            ng build --configuration=production
+            ./node_modules/.bin/ng version
+            ./node_modules/.bin/ng build --configuration=production
       - run:
           name: Backend Build
           command: npm run backend:build
