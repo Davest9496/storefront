@@ -1,85 +1,26 @@
 version: 2.1
 
 orbs:
-  aws-cli: circleci/aws-cli@3.1
+  node: circleci/node@7.1.0
+  aws: circleci/aws-cli@5.2.0
 
 jobs:
   build:
     docker:
-      - image: "cimg/node:20.11.1"
-    working_directory: ~/storefront
+        - image: circleci/node:14.17
     steps:
-      - checkout
+      -  checkout
+      - node/install-packages:
+          package-manager: npm
       - run:
-          name: Frontend Build
+          name: Front-End Install
           command: |
-            set -e
-            cd frontend
-            
-            # Debug environment
-            echo "Environment checks:"
-            pwd
-            ls -la
-            df -h
-            whoami
-            npm config list
-            echo "Node version: $(node -v)"
-            echo "NPM version: $(npm -v)"
-            
-            # Clean start with verification
-            echo "Cleaning previous installation:"
-            rm -rf node_modules package-lock.json
-            ls -la
-            
-            # Try to create directory manually
-            echo "Testing directory creation:"
-            mkdir -p test_dir
-            ls -la test_dir
-            rm -rf test_dir
-            
-            # Create .npmrc
-            echo "Creating .npmrc:"
-            echo "legacy-peer-deps=true" > .npmrc
-            echo "strict-peer-dependencies=false" >> .npmrc
-            echo "package-lock=true" >> .npmrc
-            echo "audit=false" >> .npmrc
-            echo "loglevel=verbose" >> .npmrc
-            cat .npmrc
-            
-            # Clear npm cache
-            echo "Clearing npm cache:"
-            npm cache clean --force
-            
-            # Install with debug logging
-            echo "Installing @angular/cli with debug:"
-            npm install @angular/cli@19.1.7 --verbose
-            
-            echo "Directory structure after install:"
-            ls -la
-            ls -la node_modules || echo "no node_modules directory!"
-            ls -la node_modules/.bin || echo "no .bin directory!"
-            
-            echo "Package installation verification:"
-            npm list
-            npm list @angular/cli
-            
-            echo "Installation location:"
-            npm root
-            npm bin
-            
-            echo "Testing npm prefix:"
-            npm prefix
-            
-            echo "Testing global modules location:"
-            npm root -g
-            npm bin -g
-            
-            echo "File permissions in current directory:"
-            ls -la
-            
-            echo "Testing direct package installation:"
-            npm install lodash
-            ls -la node_modules/lodash || echo "lodash not installed!"
-      - store_artifacts:
-          path: frontend/npm-debug.log
-          destination: npm-debug.log
+            npm run frontend:install
+      - run:
+          name: Back-End Install
+          command: |
+            npm run backend:install
+      - run:
+          name: Front-End Build
+          command: |
+            npm run frontend:build
