@@ -17,6 +17,7 @@ jobs:
           name: Front-End Build
           command: |
             sudo npm link @angular/cli
+            npm install @angular-devkit/build-angular:application
             npm run frontend:build
       - run:
           name: Back-End Build
