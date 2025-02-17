@@ -17,7 +17,7 @@ jobs:
           name: Install Angular cli
           command: |
             sudo npm install -g @angular/cli
-            npm link @angular/cli
+            sudo npm link @angular/cli
       - run:
           name: Front-End Install
           command: npm run frontend:install
