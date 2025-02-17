@@ -13,7 +13,7 @@ jobs:
       - run:
           name: Install Front-End
           command: |
-            cd strofront_frontend
+            cd storefront_frontend
             rm -rf node_modules
             rm package-lock.json
             npm install
