@@ -18,6 +18,7 @@ jobs:
           command: |
             sudo npm install -g @angular/cli
             sudo npm link @angular/cli
+            sudo npm install @angular-devkit/build-angular:application
       - run:
           name: Front-End Install
           command: npm run frontend:install
