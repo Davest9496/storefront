@@ -14,11 +14,13 @@ jobs:
           name: Install npm 10.2.3
           command: sudo npm install -g npm@10.2.3
       - run:
+          name: Install Angular cli
+          command: |
+            sudo npm install -g @angular/cli
+            npm link @angular/cli
+      - run:
           name: Front-End Install
           command: npm run frontend:install
-      - run:
-          name: Use Local Angular CLI
-          command: cd storefront_frontend && ng version
       - run:
           name: Back-End Install
           command: npm run backend:install
