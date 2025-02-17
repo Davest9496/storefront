@@ -30,7 +30,10 @@ jobs:
           name: Frontend Build
           command: |
             cd frontend
-            npx ng build --project storefront-frontend
+            rm -rf node_modules package-lock.json
+            npm install
+            npm install --save-dev @angular-devkit/build-angular@19.1.7
+            ./node_modules/.bin/ng build
       - run:
           name: Backend Build
           command: npm run backend:build
