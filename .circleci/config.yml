@@ -12,7 +12,7 @@ jobs:
       - checkout
       - run:
           name: Install npm 10.2.3
-          command: npm install -g npm@10.2.3 --unsafe-perm
+          command: sudo npm install -g npm@10.2.3
       - run:
           name: Front-End Install
           command: npm run frontend:install
