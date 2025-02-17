@@ -13,8 +13,7 @@ jobs:
       - run:
           name: Front-End Install
           command: |
-            cd frontend
-            npm install
+            npm run frontend:install
       - run:
           name: Back-End Install
           command: |
@@ -22,5 +21,4 @@ jobs:
       - run:
           name: Front-End Build
           command: |
-            cd frontend
-            npm run build
+            npm run frontebd:build
