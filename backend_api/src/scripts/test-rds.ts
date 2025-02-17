@@ -3,7 +3,9 @@ import dotenv from 'dotenv';
 import path from 'path';
 import dns from 'dns';
 import { promisify } from 'util';
+import { Logger } from '../utils/logger.utils';
 
+const logger = new Logger();
 const lookup = promisify(dns.lookup);
 
 // Force production environment
@@ -13,37 +15,71 @@ process.env.ENV = 'production';
 const envPath = path.resolve(process.cwd(), '.env.production');
 dotenv.config({ path: envPath });
 
+interface DNSResult {
+  address: string;
+  family: number;
+}
+
+interface DatabaseInfo {
+  database: string;
+  version: string;
+  server_version: string;
+  server_version_num: string;
+}
+
+interface DatabaseTimestamp {
+  now: string;
+}
+
+interface SSLStatus {
+  ssl: string;
+}
+
 async function performDNSLookup(hostname: string): Promise<void> {
   try {
-    const result = await lookup(hostname);
-    console.log('DNS Lookup result:', {
-      ip: result.address,
-      family: `IPv${result.family}`,
-    });
-  } catch (err) {
-    console.error('DNS Lookup failed:', err);
+    const result: DNSResult = await lookup(hostname);
+    logger.info(
+      `DNS Lookup result: IP ${result.address} (IPv${result.family})`
+    );
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error';
+    logger.error(`DNS Lookup failed: ${errorMessage}`);
+    throw error;
   }
 }
 
+// In testRDSConnection function
 async function testRDSConnection(): Promise<void> {
   const host = process.env.POSTGRES_HOST;
-  const port = process.env.POSTGRES_PORT
-    ? parseInt(process.env.POSTGRES_PORT, 10)
-    : 5432;
+  const port = typeof process.env.POSTGRES_PORT === 'string' ? 
+    parseInt(process.env.POSTGRES_PORT, 10) : 5432;
   const database = process.env.POSTGRES_DB;
   const user = process.env.POSTGRES_USER;
 
-  console.log('\nConnection Parameters:');
-  console.log('Host:', host);
-  console.log('Port:', port);
-  console.log('Database:', database);
-  console.log('User:', user);
-
-  // Perform DNS lookup first
-  if (host) {
-    console.log('\nPerforming DNS lookup...');
-    await performDNSLookup(host);
+  // Type check and validation
+  if (
+    typeof host !== 'string' ||
+    typeof database !== 'string' ||
+    typeof user !== 'string' ||
+    typeof process.env.POSTGRES_PASSWORD !== 'string'
+  ) {
+    throw new Error(
+      'Missing required database configuration. Please ensure POSTGRES_HOST, POSTGRES_DB, POSTGRES_USER, and POSTGRES_PASSWORD are set.'
+    );
   }
+
+  logger.info(`
+Connection Parameters:
+Host: ${host}
+Port: ${port}
+Database: ${database}
+User: ${user}
+  `);
+
+  // Now TypeScript knows host is a string
+  logger.info('Performing DNS lookup...');
+  await performDNSLookup(host);
 
   // Create RDS connection pool with detailed configuration
   const pool = new Pool({
@@ -55,28 +91,24 @@ async function testRDSConnection(): Promise<void> {
     ssl: {
       rejectUnauthorized: false,
     },
-    // Connection timeout
     connectionTimeoutMillis: 5000,
-    // Maximum connection retries
     max: 1,
-    // Idle timeout
     idleTimeoutMillis: 30000,
   });
 
   try {
-    console.log('\nAttempting to connect to RDS...');
+    logger.info('Attempting to connect to RDS...');
 
     // Test the connection
     const client = await pool.connect();
-    console.log('Successfully connected to RDS!');
+    logger.info('Successfully connected to RDS!');
 
     // Basic connectivity test
-    const result = await client.query('SELECT NOW()');
-    console.log('\nDatabase Connection Info:');
-    console.log('Current database time:', result.rows[0].now);
+    const timeResult = await client.query<DatabaseTimestamp>('SELECT NOW()');
+    logger.info(`Current database time: ${timeResult.rows[0].now}`);
 
     // Get database information
-    const dbInfo = await client.query(`
+    const dbInfo = await client.query<DatabaseInfo>(`
       SELECT 
         current_database() as database,
         version() as version,
@@ -84,37 +116,38 @@ async function testRDSConnection(): Promise<void> {
         current_setting('server_version_num') as server_version_num
     `);
 
-    console.log('\nDatabase Details:');
-    console.log('Database name:', dbInfo.rows[0].database);
-    console.log('PostgreSQL version:', dbInfo.rows[0].version);
-    console.log('Server version:', dbInfo.rows[0].server_version);
+    const info = dbInfo.rows[0];
+    logger.info(`
+Database Details:
+Database name: ${info.database}
+PostgreSQL version: ${info.version}
+Server version: ${info.server_version}
+    `);
 
     // Test SSL
-    const sslResult = await client.query('SHOW ssl');
-    console.log('\nSSL Status:', sslResult.rows[0].ssl);
+    const sslResult = await client.query<SSLStatus>('SHOW ssl');
+    logger.info(`SSL Status: ${sslResult.rows[0].ssl}`);
 
     // Release client and end pool
     client.release();
     await pool.end();
 
-    console.log('\nRDS connection test completed successfully!');
+    logger.info('RDS connection test completed successfully!');
     process.exit(0);
-  } catch (err) {
-    console.error('\nError connecting to RDS:', err);
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error
+        ? `${error.name}: ${error.message}\n${error.stack}`
+        : 'Unknown error';
 
-    if (err instanceof Error) {
-      console.error('\nError Details:');
-      console.error('Name:', err.name);
-      console.error('Message:', err.message);
-      console.error('Stack:', err.stack);
-    }
-
-    process.exit(1);
+    logger.error(`Error connecting to RDS: ${errorMessage}`);
+    throw error;
   }
 }
 
-console.log('Starting RDS connection test...');
-testRDSConnection().catch((err) => {
-  console.error('Unhandled error:', err);
+logger.info('Starting RDS connection test...');
+testRDSConnection().catch((error) => {
+  const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+  logger.error(`Unhandled error: ${errorMessage}`);
   process.exit(1);
 });

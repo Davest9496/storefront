@@ -1,50 +1,67 @@
 import { Pool } from 'pg';
 import dotenv from 'dotenv';
 import path from 'path';
+import { Logger } from '../utils/logger.utils';
 
+const logger = new Logger();
 const envPath = path.resolve(process.cwd(), '.env.production');
 dotenv.config({ path: envPath });
 
-async function createDatabase(): Promise<void> {
-  const pool = new Pool({
+function getDbConfig(database: string): {
+  host: string;
+  port: number;
+  database: string;
+  user: string;
+  password: string;
+  ssl: { rejectUnauthorized: boolean };
+} {
+  // Validate environment variables
+  if (
+    typeof process.env.POSTGRES_HOST !== 'string' ||
+    typeof process.env.POSTGRES_USER !== 'string' ||
+    typeof process.env.POSTGRES_PASSWORD !== 'string'
+  ) {
+    throw new Error('Missing required database configuration');
+  }
+
+  return {
     host: process.env.POSTGRES_HOST,
-    port: parseInt(process.env.POSTGRES_PORT || '5432'),
-    database: 'postgres',
+    port:
+      typeof process.env.POSTGRES_PORT === 'string'
+        ? parseInt(process.env.POSTGRES_PORT, 10)
+        : 5432,
+    database,
     user: process.env.POSTGRES_USER,
     password: process.env.POSTGRES_PASSWORD,
     ssl: {
       rejectUnauthorized: false,
     },
-  });
+  };
+}
+
+async function createDatabase(): Promise<void> {
+  const defaultPool = new Pool(getDbConfig('postgres'));
+  let storefrontPool: Pool | null = null;
 
   try {
     // Check if database exists
-    const checkResult = await pool.query(
+    const checkResult = await defaultPool.query(
       'SELECT 1 FROM pg_database WHERE datname = $1',
       ['storefront']
     );
 
     if (checkResult.rows.length === 0) {
-      console.log('Creating database "storefront"...');
-      await pool.query('CREATE DATABASE storefront');
-      console.log('Database created successfully!');
+      logger.info('Creating database "storefront"...');
+      await defaultPool.query('CREATE DATABASE storefront');
+      logger.info('Database created successfully!');
     } else {
-      console.log('Database "storefront" already exists');
+      logger.info('Database "storefront" already exists');
     }
 
     // Connect to storefront database to create schema
-    const storefrontPool = new Pool({
-      host: process.env.POSTGRES_HOST,
-      port: parseInt(process.env.POSTGRES_PORT || '5432'),
-      database: 'storefront',
-      user: process.env.POSTGRES_USER,
-      password: process.env.POSTGRES_PASSWORD,
-      ssl: {
-        rejectUnauthorized: false,
-      },
-    });
+    storefrontPool = new Pool(getDbConfig('storefront'));
 
-    console.log('Creating schema...');
+    logger.info('Creating schema...');
     await storefrontPool.query(`
       -- Drop existing tables and types if they exist
       DROP TABLE IF EXISTS order_products CASCADE;
@@ -127,14 +144,24 @@ async function createDatabase(): Promise<void> {
       CREATE INDEX idx_users_email ON users(email);
     `);
 
-    console.log('Schema created successfully!');
-    await storefrontPool.end();
-    await pool.end();
+    logger.info('Schema created successfully!');
   } catch (error) {
-    console.error('Error:', error);
-    process.exit(1);
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error';
+    logger.error(`Database creation failed: ${errorMessage}`);
+    throw error;
+  } finally {
+    // Clean up connections
+    if (storefrontPool) {
+      await storefrontPool.end();
+    }
+    await defaultPool.end();
   }
 }
 
-console.log('Starting database creation...');
-createDatabase().catch(console.error);
+logger.info('Starting database creation...');
+createDatabase().catch((error) => {
+  const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+  logger.error(`Unhandled error: ${errorMessage}`);
+  process.exit(1);
+});

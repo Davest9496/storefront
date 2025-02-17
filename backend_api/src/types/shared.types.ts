@@ -17,7 +17,7 @@ export interface User {
   first_name: string;
   last_name: string;
   email: string;
-  password_digest: string;
+  password_digest?: string;
 }
 
 export interface Order {

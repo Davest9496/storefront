@@ -1,6 +1,10 @@
 import { Pool, PoolConfig, QueryResult, QueryResultRow } from 'pg';
 import * as dotenv from 'dotenv';
 import path = require('path');
+import { Logger } from '../utils/logger.utils';
+
+// Initialize logger
+const logger = new Logger();
 
 // Load environment variables from .env file
 const envFile = process.env.ENV === 'test' ? '.env.test' : '.env';
@@ -17,21 +21,26 @@ type QueryParams = string | number | boolean | null | undefined | Buffer | Date;
 const getDbConfig = (): PoolConfig => {
   const isTest = process.env.ENV === 'test';
   const isProduction = process.env.ENV === 'production';
+  const dbHost = process.env.POSTGRES_HOST ?? 'localhost';
+  const dbName = isTest
+    ? 'storefront_test'
+    : (process.env.POSTGRES_DB ?? 'postgres');
 
   // Log environment for debugging
-  console.log(`Database Environment: ${process.env.ENV}`);
-  console.log(`Host: ${process.env.POSTGRES_HOST}`);
-  console.log(
-    `Database: ${isTest ? 'storefront_test' : process.env.POSTGRES_DB}`
-  );
+  logger.info(`Database Environment: ${process.env.ENV ?? 'development'}`);
+  logger.info(`Host: ${dbHost}`);
+  logger.info(`Database: ${dbName}`);
 
   // Base configuration
   const config: PoolConfig = {
-    host: process.env.POSTGRES_HOST,
-    port: parseInt(process.env.POSTGRES_PORT || '5432'),
-    database: isTest ? 'storefront_test' : process.env.POSTGRES_DB,
-    user: process.env.POSTGRES_USER,
-    password: process.env.POSTGRES_PASSWORD,
+    host: dbHost,
+    port:
+      typeof process.env.POSTGRES_PORT === 'string'
+        ? parseInt(process.env.POSTGRES_PORT, 10)
+        : 5432,
+    database: dbName,
+    user: process.env.POSTGRES_USER ?? 'postgres',
+    password: process.env.POSTGRES_PASSWORD ?? '',
     // Connection pool settings
     max: 20,
     idleTimeoutMillis: 30000,
@@ -40,11 +49,9 @@ const getDbConfig = (): PoolConfig => {
 
   // Add SSL configuration for production
   if (isProduction) {
-    console.log('Connecting to RDS in production mode with SSL');
+    logger.info('Connecting to RDS in production mode with SSL');
     config.ssl = {
       rejectUnauthorized: false,
-      // Add these if your RDS requires them
-      // ca: fs.readFileSync('/path/to/rds-ca-2019-root.pem').toString(),
     };
   }
 
@@ -61,11 +68,11 @@ const createPool = async (retries = 5): Promise<Pool> => {
     await client.query('SELECT 1');
     client.release();
 
-    console.log('Database connection established successfully');
+    logger.info('Database connection established successfully');
     return pool;
   } catch (error) {
     if (retries > 0) {
-      console.log(
+      logger.info(
         `Connection failed, retrying... (${retries} attempts remaining)`
       );
       await new Promise((resolve) => setTimeout(resolve, 5000)); // Wait 5 seconds
@@ -76,19 +83,31 @@ const createPool = async (retries = 5): Promise<Pool> => {
 };
 
 // Initialize pool
-let pool: Pool;
+let pool: Pool | null = null;
 
 export const initializePool = async (): Promise<void> => {
   try {
     pool = await createPool();
 
-    pool.on('error', (err: Error) => {
-      console.error('Unexpected error on idle client', err);
-      // Don't exit process, try to recover
-      initializePool().catch(console.error);
-    });
+    if (pool !== null) {
+      pool.on('error', (err: Error) => {
+        logger.error(`Unexpected error on idle client: ${err.message}`);
+        // Don't exit process, try to recover
+        initializePool().catch((e) => {
+          if (e instanceof Error) {
+            logger.error(`Pool initialization error: ${e.message}`);
+          } else {
+            logger.error('Pool initialization error: Unknown error');
+          }
+        });
+      });
+    }
   } catch (error) {
-    console.error('Failed to initialize pool:', error);
+    if (error instanceof Error) {
+      logger.error(`Failed to initialize pool: ${error.message}`);
+    } else {
+      logger.error('Failed to initialize pool: Unknown error');
+    }
     throw error;
   }
 };
@@ -97,33 +116,28 @@ export async function query<T extends DatabaseRow>(
   text: string,
   params?: QueryParams[]
 ): Promise<QueryResult<T>> {
-  if (!pool) {
+  if (pool === null) {
     await initializePool();
   }
 
   const start = Date.now();
-  const client = await pool.connect();
+  const client = await pool!.connect();
 
   try {
     const res = await client.query<T>(text, params);
     const duration = Date.now() - start;
 
     if (process.env.ENV !== 'test') {
-      console.log('Executed query', {
-        text,
-        duration,
-        rows: res.rowCount,
-        params,
-      });
+      logger.info(
+        `Executed query "${text}" with ${res.rowCount ?? 0} rows in ${duration}ms`
+      );
     }
 
     return res;
   } catch (error) {
-    console.error('Query error:', {
-      text,
-      params,
-      error: error instanceof Error ? error.message : 'Unknown error',
-    });
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error';
+    logger.error(`Query error for "${text}": ${errorMessage}`);
     throw error;
   } finally {
     client.release();
@@ -131,7 +145,19 @@ export async function query<T extends DatabaseRow>(
 }
 
 // Initialize pool on module load
-initializePool().catch(console.error);
+initializePool().catch((error) => {
+  if (error instanceof Error) {
+    logger.error(`Initial pool setup failed: ${error.message}`);
+  } else {
+    logger.error('Initial pool setup failed: Unknown error');
+  }
+});
 
-export const dbPool = (): Pool => pool;
+export const dbPool = (): Pool => {
+  if (pool === null) {
+    throw new Error('Database pool not initialized');
+  }
+  return pool;
+};
+
 export default { query, dbPool };

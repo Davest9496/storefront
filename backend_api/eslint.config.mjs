@@ -3,7 +3,6 @@ import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   {
-    // Base config for source files
     files: ['src/**/*.ts'],
     ignores: ['src/**/*.spec.ts', 'src/tests/**/*'],
     languageOptions: {
@@ -13,6 +12,8 @@ export default tseslint.config(
       parser: tseslint.parser,
       parserOptions: {
         project: './tsconfig.json',
+        ecmaVersion: 2022,
+        sourceType: 'module',
       },
     },
     plugins: {
@@ -20,13 +21,30 @@ export default tseslint.config(
     },
     rules: {
       ...tseslint.configs.recommended.rules,
+      ...tseslint.configs.strict.rules,
       '@typescript-eslint/explicit-function-return-type': 'error',
       '@typescript-eslint/no-explicit-any': 'error',
-      '@typescript-eslint/no-unused-vars': 'error',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+        },
+      ],
+      '@typescript-eslint/explicit-module-boundary-types': 'error',
+      '@typescript-eslint/no-unsafe-assignment': 'error',
+      '@typescript-eslint/no-unsafe-member-access': 'error',
+      '@typescript-eslint/no-unsafe-call': 'error',
+      '@typescript-eslint/no-unsafe-return': 'error',
+      '@typescript-eslint/require-await': 'error',
+      '@typescript-eslint/restrict-template-expressions': 'error',
+      '@typescript-eslint/strict-boolean-expressions': 'error',
+      'no-console': ['error', { allow: ['warn', 'error'] }],
+      'no-return-await': 'error',
+      'require-await': 'error',
     },
   },
   {
-    // Separate config for test files
     files: ['src/**/*.spec.ts', 'src/tests/**/*.ts'],
     ignores: [],
     languageOptions: {
@@ -37,6 +55,8 @@ export default tseslint.config(
       parser: tseslint.parser,
       parserOptions: {
         project: './tsconfig.test.json',
+        ecmaVersion: 2022,
+        sourceType: 'module',
       },
     },
     plugins: {
@@ -45,8 +65,18 @@ export default tseslint.config(
     rules: {
       ...tseslint.configs.recommended.rules,
       '@typescript-eslint/explicit-function-return-type': 'error',
-      '@typescript-eslint/no-explicit-any': 'warn', // Relaxed for test files
-      '@typescript-eslint/no-unused-vars': 'error',
+      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+        },
+      ],
+      '@typescript-eslint/no-unsafe-assignment': 'warn',
+      '@typescript-eslint/no-unsafe-member-access': 'warn',
+      '@typescript-eslint/no-unsafe-call': 'warn',
+      '@typescript-eslint/no-unsafe-return': 'warn',
     },
   }
 );

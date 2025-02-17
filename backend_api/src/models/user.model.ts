@@ -6,7 +6,7 @@ import {
   CreateUserDTO,
   RecentOrder,
   UpdateUserDTO,
-  UpdatePasswordDTO
+  UpdatePasswordDTO,
 } from '../types/shared.types';
 import { passwordUtils } from '../middleware/auth.middleware';
 
@@ -29,7 +29,7 @@ export class UserStore {
         'SELECT id, first_name, last_name, email FROM users WHERE id = $1';
       const result: QueryResult<User> = await query<User>(sql, [id]);
 
-      return result.rows.length ? result.rows[0] : null;
+      return result.rows.length > 0 ? result.rows[0] : null;
     } catch (err) {
       throw new Error(
         `Error querying user ${id}. Error: ${err instanceof Error ? err.message : String(err)}`
@@ -45,7 +45,7 @@ export class UserStore {
         [userData.email]
       );
 
-      if (emailCheck.rows.length) {
+      if (emailCheck.rows.length > 0) {
         throw new Error('Email already exists');
       }
 
@@ -69,6 +69,10 @@ export class UserStore {
         hash,
       ]);
 
+      if (result.rows.length === 0) {
+        throw new Error('Failed to create user');
+      }
+
       return result.rows[0];
     } catch (err) {
       throw new Error(
@@ -86,35 +90,41 @@ export class UserStore {
       }
 
       // If email is being updated, check if new email already exists
-      if (updates.email) {
+      if (typeof updates.email === 'string' && updates.email.length > 0) {
         const emailCheck = await query<Pick<User, 'id'>>(
           'SELECT id FROM users WHERE email = $1 AND id != $2',
           [updates.email, id]
         );
-        if (emailCheck.rows.length) {
+        if (emailCheck.rows.length > 0) {
           throw new Error('Email already exists');
         }
       }
 
-      // Build dynamic update query
-      const validUpdates = Object.entries(updates).filter(
-        ([, value]) => value !== undefined
-      );
+      // Build dynamic update query with type safety
+      const validUpdates: Array<[keyof UpdateUserDTO, string]> = Object.entries(
+        updates
+      ).filter(
+        ([key, value]) =>
+          value !== undefined &&
+          typeof value === 'string' &&
+          value.length > 0 &&
+          ['first_name', 'last_name', 'email'].includes(key)
+      ) as Array<[keyof UpdateUserDTO, string]>;
+
+      if (validUpdates.length === 0) {
+        throw new Error('No valid updates provided');
+      }
 
       const setClauses = validUpdates.map(
         ([key], index) => `${key} = $${index + 1}`
       );
       const values = validUpdates.map(([, value]) => value);
 
-      if (setClauses.length === 0) {
-        throw new Error('No valid updates provided');
-      }
-
       const sql = `
-        UPDATE users 
-        SET ${setClauses.join(', ')}
-        WHERE id = $${values.length + 1}
-        RETURNING id, first_name, last_name, email`;
+      UPDATE users 
+      SET ${setClauses.join(', ')}
+      WHERE id = $${values.length + 1}
+      RETURNING id, first_name, last_name, email`;
 
       const result = await query<User>(sql, [...values, id]);
 
@@ -139,7 +149,7 @@ export class UserStore {
       const sql = 'SELECT password_digest FROM users WHERE id = $1';
       const result = await query<Pick<User, 'password_digest'>>(sql, [id]);
 
-      if (!result.rows.length) {
+      if (result.rows.length === 0) {
         throw new Error('User not found');
       }
 
@@ -149,7 +159,7 @@ export class UserStore {
       // Verify current password
       const isValid = await bcrypt.compare(
         passwords.current_password + pepper,
-        user.password_digest
+        user.password_digest!
       );
 
       if (!isValid) {
@@ -164,10 +174,14 @@ export class UserStore {
       );
 
       // Update password
-      await query('UPDATE users SET password_digest = $1 WHERE id = $2', [
-        newHash,
-        id,
-      ]);
+      const updateResult = await query(
+        'UPDATE users SET password_digest = $1 WHERE id = $2 RETURNING id',
+        [newHash, id]
+      );
+
+      if (updateResult.rows.length === 0) {
+        throw new Error('Failed to update password');
+      }
     } catch (err) {
       throw new Error(
         `Could not update password. Error: ${err instanceof Error ? err.message : String(err)}`
@@ -182,7 +196,7 @@ export class UserStore {
         [id]
       );
 
-      if (!result.rows.length) {
+      if (result.rows.length === 0) {
         throw new Error('User not found');
       }
     } catch (err) {
@@ -198,14 +212,18 @@ export class UserStore {
         SELECT 
           o.id,
           o.status,
-          json_agg(
-            json_build_object(
-              'product_id', op.product_id,
-              'quantity', op.quantity
-            )
+          COALESCE(
+            json_agg(
+              json_build_object(
+                'product_id', op.product_id,
+                'quantity', op.quantity
+              )
+              ORDER BY op.product_id
+            ) FILTER (WHERE op.product_id IS NOT NULL),
+            '[]'
           ) as products
         FROM orders o
-        JOIN order_products op ON o.id = op.order_id
+        LEFT JOIN order_products op ON o.id = op.order_id
         WHERE o.user_id = $1
         GROUP BY o.id, o.status
         ORDER BY o.id DESC
@@ -223,26 +241,33 @@ export class UserStore {
   async authenticate(email: string, password: string): Promise<User | null> {
     try {
       const sql = 'SELECT * FROM users WHERE email = $1';
-      const result = await query<User>(sql, [email]);
+      const result = await query<User & { password_digest: string }>(sql, [
+        email,
+      ]);
 
-      if (result.rows.length) {
-        const user = result.rows[0];
-        const pepper = passwordUtils.getPepper();
-        const isValid = await bcrypt.compare(
-          password + pepper,
-          user.password_digest
-        );
-
-        if (isValid) {
-          // Destructure and omit password_digest from returned user data
-          // password_digest is part of the User Interface and cannot be left out
-          // eslint-disable-next-line
-          const { password_digest: _, ...userWithoutPassword } = user;
-          return userWithoutPassword as User;
-        }
+      if (result.rows.length === 0) {
+        return null;
       }
 
-      return null;
+      const user = result.rows[0];
+      const pepper = passwordUtils.getPepper();
+      const isValid = await bcrypt.compare(
+        password + pepper,
+        user.password_digest
+      );
+
+      if (!isValid) {
+        return null;
+      }
+
+      // Create a new object with only the User fields we want to return
+      const userWithoutPassword: User = {
+        id: user.id,
+        email: user.email,
+        first_name: user.first_name,
+        last_name: user.last_name,
+      };
+      return userWithoutPassword;
     } catch (err) {
       throw new Error(
         `Authentication failed. Error: ${err instanceof Error ? err.message : String(err)}`

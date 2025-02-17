@@ -1,6 +1,9 @@
 import { QueryResult } from 'pg';
 import { query } from '../config/database.config';
-import { Product, CreateProductDTO, ProductCategory } from '../types/shared.types';
+import {
+  Product,
+  CreateProductDTO,
+} from '../types/shared.types';
 import {
   NotFoundError,
   BadRequestError,
@@ -54,19 +57,25 @@ export class ProductStore {
         RETURNING *
       `;
 
-      // Convert arrays to PostgreSQL array format
-      const features = product.product_features
-        ? `{${product.product_features.join(',')}}`
-        : null;
-      const accessories = product.product_accessories
-        ? `{${product.product_accessories.join(',')}}`
-        : null;
+      // Convert arrays to PostgreSQL array format with proper type checking
+      const features =
+        Array.isArray(product.product_features) &&
+        product.product_features.length > 0
+          ? `{${product.product_features.join(',')}}`
+          : null;
+
+      const accessories =
+        Array.isArray(product.product_accessories) &&
+        product.product_accessories.length > 0
+          ? `{${product.product_accessories.join(',')}}`
+          : null;
 
       const values = [
         product.product_name,
         product.price,
         product.category,
-        product.product_desc || null,
+        // Use null coalescing for optional string field
+        product.product_desc ?? null,
         product.image_name,
         features,
         accessories,
@@ -86,11 +95,8 @@ export class ProductStore {
     updates: Partial<CreateProductDTO>
   ): Promise<Product> {
     try {
-      // First check if product exists
-      const exists = await this.show(id);
-      if (!exists) {
-        throw new NotFoundError(`Product with id ${id} not found`);
-      }
+      // Check for product existence explicitly
+      await this.show(id);
 
       // Build dynamic update query
       const allowedUpdates = [
@@ -101,10 +107,17 @@ export class ProductStore {
         'image_name',
         'product_features',
         'product_accessories',
-      ];
+      ] as const;
+
+      type AllowedUpdate = (typeof allowedUpdates)[number];
 
       const updateEntries = Object.entries(updates).filter(
-        ([key, value]) => allowedUpdates.includes(key) && value !== undefined
+        (entry): entry is [AllowedUpdate, string | number | string[]] => {
+          const [key, value] = entry;
+          return (
+            allowedUpdates.includes(key as AllowedUpdate) && value !== undefined
+          );
+        }
       );
 
       if (updateEntries.length === 0) {
@@ -114,8 +127,9 @@ export class ProductStore {
       const setClauses = updateEntries.map(
         ([key], index) => `${key} = $${index + 1}`
       );
+
       const values = updateEntries.map(([, value]) => {
-        if (Array.isArray(value)) {
+        if (Array.isArray(value) && value.length > 0) {
           return `{${value.join(',')}}`;
         }
         return value;
@@ -128,7 +142,7 @@ export class ProductStore {
         RETURNING *
       `;
 
-      const result: QueryResult<Product> = await query(sql, [...values, id]);
+      const result: QueryResult<Product> = await query(sql, [...values.map(value => Array.isArray(value) ? `{${value.join(',')}}` : value), id]);
       return result.rows[0];
     } catch (err) {
       if (err instanceof NotFoundError || err instanceof BadRequestError)
@@ -157,11 +171,13 @@ export class ProductStore {
 
   async getByCategory(category: string): Promise<Product[]> {
     try {
-      // Check if category is valid
-      const isValidCategory = (cat: string): cat is ProductCategory =>
-        ['headphones', 'speakers', 'earphones'].includes(cat);
+      const validCategories = ['headphones', 'speakers', 'earphones'] as const;
+      type ValidCategory = (typeof validCategories)[number];
 
-      // If invalid category, return empty array
+      // Type guard for category validation
+      const isValidCategory = (cat: string): cat is ValidCategory =>
+        validCategories.includes(cat as ValidCategory);
+
       if (!isValidCategory(category)) {
         return [];
       }
@@ -170,7 +186,6 @@ export class ProductStore {
       const result: QueryResult<Product> = await query(sql, [category]);
       return result.rows;
     } catch (err) {
-      // If it's a database enum error, return empty array
       if (
         err instanceof Error &&
         err.message.includes('invalid input value for enum product_category')
@@ -203,8 +218,8 @@ export class ProductStore {
 
       const result: QueryResult<ProductWithSales> = await query(sql);
 
-      // Explicitly removing total_sold from the returned products
-      return result.rows.map(({ ...product }) => product);
+      // Explicitly remove total_sold from the returned products
+      return result.rows.map(({ total_sold: _total_sold, ...product }) => product);
     } catch (err) {
       throw new DatabaseError(
         `Could not get top products: ${err instanceof Error ? err.message : String(err)}`

@@ -5,62 +5,93 @@ import router from './routes/router';
 import path from 'path';
 import { initializePool, dbPool } from './config/database.config';
 import { errorHandler } from './utils/error.utils';
+import { Logger } from './utils/logger.utils'; 
 
 // Environment setup
 const getEnvPath = (): string => {
-  const nodeEnv = process.env.ENV;
-  switch (nodeEnv) {
-    case 'production':
-      return '.env.production';
-    case 'test':
-      return '.env.test';
-    default:
-      return '.env';
+  const nodeEnv = process.env.ENV ?? '';
+  if (nodeEnv.length > 0) {
+    if (nodeEnv === 'production') return '.env.production';
+    if (nodeEnv === 'test') return '.env.test';
   }
+  return '.env';
 };
 
 // Load appropriate .env file
 const envPath = path.resolve(process.cwd(), getEnvPath());
-console.log(`Loading environment from: ${envPath}`);
+const logger = new Logger();
+logger.info(`Loading environment from: ${envPath}`);
 dotenv.config({ path: envPath });
 
 const app: Application = express();
-const port = process.env.PORT || 3000;
+const defaultPort = 3000;
+const port =
+  typeof process.env.PORT === 'string'
+    ? parseInt(process.env.PORT, 10)
+    : defaultPort;
 
 // Middleware
 app.use(bodyParser.json());
 
+interface DatabaseTimestamp {
+  now: string;
+}
+
+interface HealthCheckResponse {
+  status: 'healthy' | 'unhealthy';
+  timestamp: string;
+  environment: string;
+  service: string;
+  database: {
+    connected: boolean;
+    host?: string;
+    database?: string;
+    timestamp?: string;
+    error?: string;
+  };
+}
+
 // Health check endpoint
 app.get('/health', async (_req, res) => {
+  const environment = process.env.ENV ?? process.env.NODE_ENV ?? 'development';
+  const timestamp = new Date().toISOString();
+
   try {
     const pool = dbPool();
     const client = await pool.connect();
-    const result = await client.query('SELECT NOW()');
+    const result = await client.query<DatabaseTimestamp>('SELECT NOW()');
     client.release();
 
-    res.json({
+    const dbHost = process.env.POSTGRES_HOST ?? 'unknown';
+    const dbName = process.env.POSTGRES_DB ?? 'unknown';
+
+    const response: HealthCheckResponse = {
       status: 'healthy',
-      timestamp: new Date().toISOString(),
-      environment: process.env.ENV || process.env.NODE_ENV,
+      timestamp,
+      environment,
       service: 'storefront-api',
       database: {
         connected: true,
-        host: process.env.POSTGRES_HOST,
-        database: process.env.POSTGRES_DB,
+        host: dbHost,
+        database: dbName,
         timestamp: result.rows[0].now,
       },
-    });
+    };
+
+    res.json(response);
   } catch {
-    res.status(503).json({
+    const response: HealthCheckResponse = {
       status: 'unhealthy',
-      timestamp: new Date().toISOString(),
-      environment: process.env.ENV || process.env.NODE_ENV,
+      timestamp,
+      environment,
       service: 'storefront-api',
       database: {
         connected: false,
         error: 'Database connection error',
       },
-    });
+    };
+
+    res.status(503).json(response);
   }
 });
 
@@ -72,10 +103,11 @@ app.use(errorHandler);
 
 // 404 handler (should be after API routes)
 app.use((req, res) => {
-  res.status(404).json({
+  const response = {
     error: 'Not Found',
     message: `Cannot ${req.method} ${req.url}`,
-  });
+  };
+  res.status(404).json(response);
 });
 
 // Start server function
@@ -83,35 +115,46 @@ const startServer = async (): Promise<void> => {
   try {
     await initializePool();
 
-    if (process.env.ENV !== 'test') {
+    const isTestEnvironment = process.env.ENV === 'test';
+    if (!isTestEnvironment) {
+      const environment =
+        process.env.ENV ?? process.env.NODE_ENV ?? 'development';
+      const dbName = process.env.POSTGRES_DB ?? 'unknown';
+      const dbHost = process.env.POSTGRES_HOST ?? 'unknown';
+
       const server = app.listen(port, () => {
-        console.log(`
+        logger.info(`
 🚀 Server started:
-📋 Environment: ${process.env.ENV || process.env.NODE_ENV}
+📋 Environment: ${environment}
 🔌 Port: ${port}
-📦 Database: ${process.env.POSTGRES_DB}
-🏠 Host: ${process.env.POSTGRES_HOST}
+📦 Database: ${dbName}
+🏠 Host: ${dbHost}
         `);
       });
 
       // Graceful shutdown
       process.on('SIGTERM', () => {
-        console.log('SIGTERM signal received: closing HTTP server');
+        logger.info('SIGTERM signal received: closing HTTP server');
         server.close(() => {
-          console.log('HTTP server closed');
+          logger.info('HTTP server closed');
         });
       });
     }
   } catch (error) {
-    console.error('Failed to start server:', error);
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error';
+    logger.error('Failed to start server:', errorMessage);
     process.exit(1);
   }
 };
 
 // Initialize server
-if (process.env.ENV !== 'test') {
+const isTestEnvironment = process.env.ENV === 'test';
+if (!isTestEnvironment) {
   startServer().catch((error) => {
-    console.error('Server initialization failed:', error);
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error';
+    logger.error('Server initialization failed:', errorMessage);
     process.exit(1);
   });
 }

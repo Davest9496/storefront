@@ -26,73 +26,102 @@ interface JWTPayload {
 
 // Utility function to generate JWT token
 export const generateToken = (userId: number, email: string): string => {
+  const jwtSecret = process.env.JWT_SECRET;
+  if (typeof jwtSecret !== 'string' || jwtSecret.length === 0) {
+    throw new Error('JWT_SECRET is not properly configured');
+  }
+
   try {
     return jwt.sign(
       {
         user: { id: userId, email },
       },
-      process.env.JWT_SECRET as string,
+      jwtSecret,
       { expiresIn: '24h' }
     );
   } catch (error) {
-    throw new Error(`Error generating token: ${error}`);
+    // Using type guard for error
+    if (error instanceof Error) {
+      throw new Error(`Error generating token: ${error.message}`);
+    }
+    throw new Error('Unknown error generating token');
   }
 };
 
 // Middleware to verify JWT token
-export const verifyAuthToken = async (
+export const verifyAuthToken = (
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<void> => {
+): void => {
   try {
     const authHeader = req.headers.authorization;
+    const jwtSecret = process.env.JWT_SECRET;
 
-    if (!authHeader) {
+    if (typeof authHeader !== 'string' || authHeader.length === 0) {
       res.status(401).json({ error: 'Authorization header is required' });
       return;
     }
 
-    // Extract token from "Bearer <token>"
-    const token = authHeader.split(' ')[1];
+    if (typeof jwtSecret !== 'string' || jwtSecret.length === 0) {
+      res.status(500).json({ error: 'JWT configuration error' });
+      return;
+    }
 
-    if (!token) {
-      res.status(401).json({ error: 'Token not provided' });
+    // Extract token from "Bearer <token>"
+    const [bearer, token] = authHeader.split(' ');
+
+    if (
+      bearer !== 'Bearer' ||
+      typeof token !== 'string' ||
+      token.length === 0
+    ) {
+      res.status(401).json({ error: 'Invalid authorization format' });
       return;
     }
 
     try {
       // Verify and decode token
-      const decoded = jwt.verify(
-        token,
-        process.env.JWT_SECRET as string
-      ) as JWTPayload;
+      const decoded = jwt.verify(token, jwtSecret) as JWTPayload;
 
       // Add user info to request object
       req.user = decoded.user;
       next();
-    } catch (jwtError) {
-      console.log(jwtError);
+    } catch {
       res.status(401).json({ error: 'Invalid or expired token' });
     }
   } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error';
     res.status(401).json({
       error: 'Authentication failed',
-      details: error instanceof Error ? error.message : 'Unknown error',
+      details: errorMessage,
     });
   }
 };
 
 // Middleware to verify user authorization
-export const verifyUserAuthorization = async (
+export const verifyUserAuthorization = (
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<void> => {
+): void => {
   try {
-    const userId = parseInt(req.params.id);
+    const userIdParam = req.params.id;
 
-    if (!req.user) {
+    if (typeof userIdParam !== 'string' || userIdParam.length === 0) {
+      res.status(400).json({ error: 'Invalid user ID' });
+      return;
+    }
+
+    const userId = parseInt(userIdParam, 10);
+
+    if (isNaN(userId)) {
+      res.status(400).json({ error: 'Invalid user ID format' });
+      return;
+    }
+
+    if (req.user === undefined) {
       res.status(401).json({ error: 'User not authenticated' });
       return;
     }
@@ -104,9 +133,11 @@ export const verifyUserAuthorization = async (
 
     next();
   } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error';
     res.status(403).json({
       error: 'Unauthorized',
-      details: error instanceof Error ? error.message : 'Unknown error',
+      details: errorMessage,
     });
   }
 };
@@ -115,14 +146,19 @@ export const verifyUserAuthorization = async (
 export const passwordUtils = {
   getPepper: (): string => {
     const pepper = process.env.BCRYPT_PASSWORD;
-    if (!pepper) {
+    if (typeof pepper !== 'string' || pepper.length === 0) {
       throw new Error('BCRYPT_PASSWORD (pepper) not set in environment');
     }
     return pepper;
   },
 
   getSaltRounds: (): number => {
-    const saltRounds = parseInt(process.env.SALT_ROUNDS || '10');
+    const saltRoundsStr = process.env.SALT_ROUNDS;
+    if (typeof saltRoundsStr !== 'string' || saltRoundsStr.length === 0) {
+      return 10; // Default value
+    }
+
+    const saltRounds = parseInt(saltRoundsStr, 10);
     if (isNaN(saltRounds)) {
       throw new Error('SALT_ROUNDS must be a valid number');
     }
