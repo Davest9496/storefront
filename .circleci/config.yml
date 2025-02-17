@@ -7,13 +7,13 @@ orbs:
 jobs:
   build:
     docker:
-        - image: cimg/node:20.11.1
+      - image: cimg/node:20.11.1
     steps:
       - checkout
       - run:
           name: Install npm 10.2.3
           command: |
-            npm install -g npm@10.2.3
+            npm install -g npm@10.2.3 --unsafe-perm
       - run:
           name: Front-End Install
           command: |
