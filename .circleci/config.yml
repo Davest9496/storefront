@@ -6,6 +6,7 @@ orbs:
 
 jobs:
   build:
+    working_directory: ~/storefront
     docker:
       - image: cimg/node:20.11.1
     steps:
@@ -15,7 +16,7 @@ jobs:
           command: |
             cd storefront_frontend
             rm -rf node_modules
-            rm package-lock.json
+            rm -rf package-lock.json
             npm install
             npm install @angular-devkit/build-angular:application
             sudo npm link @angular/cli
