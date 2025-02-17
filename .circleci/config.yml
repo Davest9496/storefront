@@ -14,13 +14,26 @@ jobs:
           command: |
             chmod +x ./setup_env.sh
             source ./setup_env.sh
-      - restore_cache:
-          keys: [frontend-build, backend-build]
       - run:
-          name: Install All Dependencies
+          name: Install Dependencies and Build
           command: |
+            # Install Angular CLI globally
             sudo npm install -g @angular/cli@19.1.7
-            npm run install:all
+            
+            # Install root dependencies
+            npm install
+            
+            # Install frontend dependencies explicitly
+            cd frontend
+            rm -rf node_modules package-lock.json
+            npm install --legacy-peer-deps
+            
+            # Show installed packages for debugging
+            echo "Showing installed packages:"
+            npm list --depth=0
+            
+            # Try to build using global Angular CLI
+            ng build
       - run:
           name: Install Angular Builder
           command: |
