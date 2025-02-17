@@ -11,20 +11,77 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install npm
-          command: sudo npm install -g npm@10.2.4
-      - run:
-          name: Install Angular cli
-          command: |
-            sudo npm install -g @angular/cli
-            sudo npm link @angular/cli
-            sudo npm install @angular-devkit/build-angular:application
-      - run:
-          name: Front-End Install
-          command: npm run frontend:install
-      - run:
-          name: Back-End Install
-          command: npm run backend:install
+          name: Install All Dependencies
+          command: npm install
       - run:
           name: Front-End Build
-          command: cd storefront_frontend && ng build --configuration production
+          command: |
+            npx ng build --configuration production
+      - run:
+          name: Back-End Build
+          command: npm run backend:build
+
+  deploy:
+    docker:
+      - image: "cimg/python:3.11-node"
+    steps:
+      - checkout
+      - run:
+          name: Set Up Environment Variables
+          command: |
+            eb setenv \
+              POSTGRES_HOST="${POSTGRES_HOST}" \
+              POSTGRES_PORT="${POSTGRES_PORT}" \
+              POSTGRES_DB="${POSTGRES_DB}" \
+              POSTGRES_USER="${POSTGRES_USER}" \
+              POSTGRES_PASSWORD="${POSTGRES_PASSWORD}" \
+              PORT="${PORT}" \
+              ENV="${ENV}" \
+              NODE_ENV="${NODE_ENV}" \
+              JWT_SECRET="${JWT_SECRET}" \
+              BCRYPT_PASSWORD="${BCRYPT_PASSWORD}" \
+              SALT_ROUNDS="${SALT_ROUNDS}" \
+              AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID}" \
+              AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY}" \
+              AWS_DEFAULT_REGION="${AWS_DEFAULT_REGION}" \
+              AWS_BUCKET_NAME="${AWS_BUCKET_NAME}"
+            echo "Elastic Beanstalk Environment variables have been set"
+      - aws-cli/setup:
+          profile-name: default
+      - run:
+          name: Install Node.js
+          command: |
+            curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+            sudo apt-get install -y nodejs
+      - run:
+          name: Install Elastic Beanstalk CLI
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y python3-pip
+            pip install --user awsebcli
+            echo 'export PATH=$PATH:$HOME/.local/bin' >> $BASH_ENV
+            source $BASH_ENV
+      - run:
+          name: Verify EB CLI Installation
+          command: eb --version
+      - run:
+          name: Front-End Deploy
+          command: npm run frontend:deploy
+      - run:
+          name: Back-End Deploy
+          command: npm run backend:deploy
+
+workflows:
+  build-hold-deploy:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only: master
+      - hold:
+          type: approval
+          requires:
+            - build
+      - deploy:
+          requires:
+            - hold
