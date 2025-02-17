@@ -9,7 +9,7 @@ jobs:
     docker:
         - image: circleci/node:14.17
     steps:
-      -  checkout
+      - checkout
       - node/install-packages:
           package-manager: npm
       - run:
