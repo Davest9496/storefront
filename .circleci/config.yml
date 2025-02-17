@@ -30,12 +30,18 @@ jobs:
           name: Frontend Build
           command: |
             cd frontend
+            echo "Cleaning npm cache..."
+            npm cache clean --force
+            echo "Removing existing node_modules..."
             rm -rf node_modules package-lock.json
-            npm install
-            npm install --save-dev @angular/cli@19.1.7
-            npm install --save-dev @angular-devkit/build-angular@19.1.7
-            ls -la node_modules/.bin/
-            npx ng build
+            echo "Installing all dependencies..."
+            npm install --legacy-peer-deps
+            echo "Verifying Angular CLI installation..."
+            npm list @angular/cli
+            echo "Verifying build-angular installation..."
+            npm list @angular-devkit/build-angular
+            echo "Building project..."
+            npm run build
       - run:
           name: Backend Build
           command: npm run backend:build
