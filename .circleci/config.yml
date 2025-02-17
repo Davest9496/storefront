@@ -23,7 +23,11 @@ jobs:
             cd ..
       - run:
           name: Install Back-End
-          command: npm run backend:install
+          command: |
+            cd backend_api
+            rm -rf node_modules package-lock.json
+            npm install
+            cd ..
       - run:
           name: Front-End Build
           command: |
