@@ -18,7 +18,9 @@ jobs:
           keys: [frontend-build, backend-build]
       - run:
           name: Install All Dependencies
-          command: npm run install:all
+          command: |
+            npm run install:all
+            npm install -g @angular/cli
       - run:
           name: Frontend Build
           command: npm run frontend:build
