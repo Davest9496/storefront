@@ -15,7 +15,7 @@ jobs:
           command: npm install
       - run:
           name: Front-End Build
-          command: npx ng build --configuration production
+          command: npm run frontend:build
       - run:
           name: Back-End Build
           command: npm run backend:build
