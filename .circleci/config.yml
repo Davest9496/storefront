@@ -15,10 +15,10 @@ jobs:
           name: Install Front-End
           command: |
             cd storefront_frontend
-            rm -rf node_modules
-            rm -rf package-lock.json
-            npm install
-            npm install @angular-devkit/build-angular:application
+            rm -rf node_modules package-lock.json
+            npm cache clean --force
+            npm ci
+            npm ci @angular-devkit/build-angular --save-dev
             sudo npm link @angular/cli
             cd ..
       - run:
