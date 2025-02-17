@@ -10,43 +10,21 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Setup npm version
+          name: Setup Environment
           command: |
             sudo npm install -g npm@8.19.4
+            sudo npm install -g @angular/cli@19.1.7
             npm --version
-      - run:
-          name: Install Dependencies and Build
-          command: |
-            cd frontend
-            rm -rf node_modules package-lock.json
-            npm install
-            npm install --save-dev @angular-devkit/build-angular@19.1.7
-            npm install --save-dev @angular/cli@19.1.7
-            npm install --save-dev @angular/compiler-cli@19.1.6
-            echo "Showing installed packages:"
-            npm list --depth=0
-            npm run build
-      - run:
-          name: Install Angular Builder
-          command: |
-            cd frontend
-            npm install --save-dev @angular-devkit/build-angular@19.1.7
+            ng version
       - run:
           name: Frontend Build
           command: |
             cd frontend
-            echo "Cleaning npm cache..."
-            npm cache clean --force
-            echo "Removing existing node_modules..."
             rm -rf node_modules package-lock.json
-            echo "Installing all dependencies..."
             npm install --legacy-peer-deps
-            echo "Verifying Angular CLI installation..."
-            npm list @angular/cli
-            echo "Verifying build-angular installation..."
-            npm list @angular-devkit/build-angular
-            echo "Building project..."
-            npm run build
+            export PATH="$PATH:./node_modules/.bin"
+            ng version
+            ng build
       - run:
           name: Backend Build
           command: npm run backend:build
@@ -56,58 +34,3 @@ jobs:
       - save_cache:
           paths: [frontend/node_modules, backend_api/node_modules]
           key: deps-{{ checksum "package.json" }}
-
-  deploy:
-    docker:
-      - image: "cimg/python:3.11-node"
-    steps:
-      - checkout
-      - run:
-          name: Set Up Environment Variables
-          command: |
-            chmod +x ./setup_env.sh
-            source ./setup_env.sh
-      - restore_cache:
-          keys: ['deps-{{ checksum "package.json" }}']
-      - aws-cli/setup:
-          profile-name: default
-      - run:
-                name: Install Node.js
-                command: |
-                  curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-                  sudo apt-get install -y nodejs
-                  # Set the specific Node version
-                  sudo npm install -g n
-                  sudo n 20.11.1
-      - run:
-          name: Install Elastic Beanstalk CLI
-          command: |
-            sudo apt-get update
-            sudo apt-get install -y python3-pip
-            pip install --user awsebcli
-            echo 'export PATH=$PATH:$HOME/.local/bin' >> $BASH_ENV
-            source $BASH_ENV
-      - run:
-          name: Verify EB CLI Installation
-          command: eb --version
-      - run:
-          name: Frontend Deploy
-          command: npm run frontend:deploy
-      - run:
-          name: Backend Deploy
-          command: npm run backend:deploy
-
-workflows:
-  build-hold-deploy:
-    jobs:
-      - build
-      - hold:
-          type: approval
-          requires:
-            - build
-      - deploy:
-          requires:
-            - hold
-          filters:
-            branches:
-              only: master
