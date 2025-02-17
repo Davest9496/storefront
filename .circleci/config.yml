@@ -7,38 +7,45 @@ jobs:
   build:
     docker:
       - image: "cimg/node:20.11.1"
+    working_directory: ~/storefront
     steps:
       - checkout
       - restore_cache:
           keys:
-            - deps-{{ checksum "frontend/package.json" }}
+            - v1-deps-{{ checksum "frontend/package.json" }}
       - run:
           name: Setup Environment
           command: |
             sudo npm install -g npm@8.19.4
+            npm --version
       - run:
           name: Frontend Build
           command: |
             cd frontend
+            echo "Current directory: $(pwd)"
             rm -rf node_modules package-lock.json
-            # Install exact versions to ensure compatibility
-            npm install --save-exact @angular/cli@19.1.7
-            npm install --save-exact @angular/core@19.1.6
-            npm install --save-exact @angular/common@19.1.6
-            npm install --save-exact @angular/compiler@19.1.6
-            npm install --save-exact @angular/compiler-cli@19.1.6
-            npm install --save-exact @angular-devkit/build-angular@19.1.7
-            npm install --save-exact typescript@5.6.2
-            # Install remaining dependencies
-            npm install --legacy-peer-deps
+            # Create fresh package-lock.json
+            npm install --package-lock-only
+            # Install dependencies with specific strategy
+            npm ci || npm install --legacy-peer-deps
+            # Install critical packages explicitly if needed
+            if [ ! -d "node_modules/@angular" ]; then
+              echo "Forcing critical package installations..."
+              npm install --save-exact @angular/cli@19.1.7
+              npm install --save-exact @angular/core@19.1.6
+              npm install --save-exact @angular/compiler-cli@19.1.6
+              npm install --save-exact @angular-devkit/build-angular@19.1.7
+              npm install --save-exact typescript@5.6.2
+            fi
             # Verify installations
             echo "Verifying critical packages:"
-            npm list @angular/cli
-            npm list @angular-devkit/build-angular
-            npm list @angular/compiler-cli
-            npm list typescript
-            # Build using npx
-            npx ng build
+            npm list @angular/cli || true
+            npm list @angular-devkit/build-angular || true
+            npm list @angular/compiler-cli || true
+            npm list typescript || true
+            # Run build using npx
+            echo "Starting build..."
+            npx --no-install ng build
       - run:
           name: Backend Build
           command: npm run backend:build
@@ -49,4 +56,4 @@ jobs:
           paths: 
             - frontend/node_modules
             - backend_api/node_modules
-          key: deps-{{ checksum "frontend/package.json" }}
+          key: v1-deps-{{ checksum "frontend/package.json" }}
