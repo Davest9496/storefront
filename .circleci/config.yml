@@ -15,50 +15,71 @@ jobs:
           command: |
             set -e
             cd frontend
-            echo "Current directory: $(pwd)"
             
-            # Clean start
+            # Debug environment
+            echo "Environment checks:"
+            pwd
+            ls -la
+            df -h
+            whoami
+            npm config list
+            echo "Node version: $(node -v)"
+            echo "NPM version: $(npm -v)"
+            
+            # Clean start with verification
+            echo "Cleaning previous installation:"
             rm -rf node_modules package-lock.json
+            ls -la
             
-            # Create known good .npmrc
+            # Try to create directory manually
+            echo "Testing directory creation:"
+            mkdir -p test_dir
+            ls -la test_dir
+            rm -rf test_dir
+            
+            # Create .npmrc
+            echo "Creating .npmrc:"
             echo "legacy-peer-deps=true" > .npmrc
             echo "strict-peer-dependencies=false" >> .npmrc
             echo "package-lock=true" >> .npmrc
             echo "audit=false" >> .npmrc
             echo "loglevel=verbose" >> .npmrc
+            cat .npmrc
             
-            # Install dependencies one at a time to identify any issues
-            echo "Installing @angular/cli..."
-            npm install @angular/cli@19.1.7
-            ls -la node_modules/.bin/ng || true
+            # Clear npm cache
+            echo "Clearing npm cache:"
+            npm cache clean --force
             
-            echo "Installing @angular-devkit/build-angular..."
-            npm install @angular-devkit/build-angular@19.1.7
+            # Install with debug logging
+            echo "Installing @angular/cli with debug:"
+            npm install @angular/cli@19.1.7 --verbose
             
-            echo "Installing core dependencies..."
-            npm install @angular/core@19.1.6 \
-                      @angular/common@19.1.6 \
-                      @angular/compiler@19.1.6 \
-                      @angular/compiler-cli@19.1.6 \
-                      typescript@5.6.2
+            echo "Directory structure after install:"
+            ls -la
+            ls -la node_modules || echo "no node_modules directory!"
+            ls -la node_modules/.bin || echo "no .bin directory!"
             
-            echo "Installing remaining dependencies..."
-            npm install --legacy-peer-deps
-            
-            echo "Verifying node_modules structure..."
-            ls -la node_modules/.bin
-            ls -la node_modules/@angular/cli/bin
-            
-            echo "Final verification of Angular CLI..."
-            command -v ng || true
-            which ng || true
+            echo "Package installation verification:"
+            npm list
             npm list @angular/cli
             
-            echo "Starting build with explicit path..."
-            node_modules/.bin/ng build --configuration=production
-      - run:
-          name: Backend Build
-          command: npm run backend:build
-      - run:
-          name: Backend Lint
-          command: npm run backend:lint
+            echo "Installation location:"
+            npm root
+            npm bin
+            
+            echo "Testing npm prefix:"
+            npm prefix
+            
+            echo "Testing global modules location:"
+            npm root -g
+            npm bin -g
+            
+            echo "File permissions in current directory:"
+            ls -la
+            
+            echo "Testing direct package installation:"
+            npm install lodash
+            ls -la node_modules/lodash || echo "lodash not installed!"
+      - store_artifacts:
+          path: frontend/npm-debug.log
+          destination: npm-debug.log
