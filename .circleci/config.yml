@@ -10,9 +10,6 @@ jobs:
     working_directory: ~/storefront
     steps:
       - checkout
-      - restore_cache:
-          keys:
-            - v1-deps-{{ checksum "frontend/package.json" }}
       - run:
           name: Frontend Build
           command: |
@@ -20,61 +17,48 @@ jobs:
             cd frontend
             echo "Current directory: $(pwd)"
             
-            # Clean installation
+            # Clean start
             rm -rf node_modules package-lock.json
             
-            # Create temporary package.json with just the critical dependencies
-            echo '{
-              "name": "temp",
-              "version": "0.0.0",
-              "dependencies": {
-                "@angular/cli": "19.1.7",
-                "@angular-devkit/build-angular": "19.1.7",
-                "@angular/core": "19.1.6",
-                "@angular/common": "19.1.6",
-                "@angular/compiler": "19.1.6",
-                "@angular/compiler-cli": "19.1.6",
-                "typescript": "5.6.2"
-              }
-            }' > temp-package.json
+            # Create known good .npmrc
+            echo "legacy-peer-deps=true" > .npmrc
+            echo "strict-peer-dependencies=false" >> .npmrc
+            echo "package-lock=true" >> .npmrc
+            echo "audit=false" >> .npmrc
+            echo "loglevel=verbose" >> .npmrc
             
-            # Install critical dependencies first
-            echo "Installing critical dependencies..."
-            npm install --package-lock-only --package-json=temp-package.json
-            npm ci --package-json=temp-package.json || {
-              echo "Failed to install critical dependencies with npm ci, trying npm install..."
-              npm install --legacy-peer-deps --package-json=temp-package.json
-            }
+            # Install dependencies one at a time to identify any issues
+            echo "Installing @angular/cli..."
+            npm install @angular/cli@19.1.7
+            ls -la node_modules/.bin/ng || true
             
-            # Verify critical installations
-            echo "Verifying critical installations..."
-            npm list @angular/cli || true
-            npm list @angular-devkit/build-angular || true
-            npm list typescript || true
+            echo "Installing @angular-devkit/build-angular..."
+            npm install @angular-devkit/build-angular@19.1.7
             
-            # Now install everything from the real package.json
+            echo "Installing core dependencies..."
+            npm install @angular/core@19.1.6 \
+                      @angular/common@19.1.6 \
+                      @angular/compiler@19.1.6 \
+                      @angular/compiler-cli@19.1.6 \
+                      typescript@5.6.2
+            
             echo "Installing remaining dependencies..."
             npm install --legacy-peer-deps
             
-            # Try to build
-            echo "Starting build..."
-            if [ -f "node_modules/.bin/ng" ]; then
-              ./node_modules/.bin/ng version
-              ./node_modules/.bin/ng build --configuration=production
-            else
-              echo "Angular CLI not found in node_modules/.bin/ng"
-              echo "Contents of node_modules/.bin:"
-              ls -la node_modules/.bin || echo "node_modules/.bin does not exist"
-              exit 1
-            fi
+            echo "Verifying node_modules structure..."
+            ls -la node_modules/.bin
+            ls -la node_modules/@angular/cli/bin
+            
+            echo "Final verification of Angular CLI..."
+            command -v ng || true
+            which ng || true
+            npm list @angular/cli
+            
+            echo "Starting build with explicit path..."
+            node_modules/.bin/ng build --configuration=production
       - run:
           name: Backend Build
           command: npm run backend:build
       - run:
           name: Backend Lint
           command: npm run backend:lint
-      - save_cache:
-          paths: 
-            - frontend/node_modules
-            - backend_api/node_modules
-          key: v1-deps-{{ checksum "frontend/package.json" }}
