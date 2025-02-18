@@ -28,7 +28,15 @@ jobs:
             rm -rf node_modules
             npm cache clean --force
             npm install
-            npm install --save-dev @types/node@22.13.1
+            npm install --save-dev \
+              @types/node@22.13.1 \
+              @types/express@5.0.0 \
+              @types/pg@8.11.11 \
+              @types/body-parser@1.19.5 \
+              @types/jsonwebtoken@9.0.7 \
+              @types/jasmine@5.1.6 \
+              @types/jasmine-spec-reporter@7.0.0 \
+              jasmine-spec-reporter@7.0.0
             cd ..
       - run:
           name: Front-End Build
