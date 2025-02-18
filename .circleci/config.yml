@@ -73,6 +73,7 @@ jobs:
           name: Set Up Environment Variables
           command: |
             source $BASH_ENV
+            cd backend_api
             eb setenv \
               POSTGRES_HOST="${POSTGRES_HOST}" \
               POSTGRES_PORT="${POSTGRES_PORT}" \
@@ -99,7 +100,8 @@ jobs:
           name: Back-End Deploy
           command: |
             source $BASH_ENV
-            npm run backend:deploy
+            cd backend_api
+            eb deploy --staged
 
 workflows:
   build-hold-deploy:
