@@ -7,6 +7,7 @@ import {
   RecentOrder,
   UpdateUserDTO,
   UpdatePasswordDTO,
+  UserRow
 } from '../types/shared.types';
 import { passwordUtils } from '../middleware/auth.middleware';
 
@@ -105,7 +106,8 @@ export class UserStore {
         updates
       ).filter(
         ([key, value]) =>
-          value !== undefined && typeof value === 'string' &&
+          value !== undefined &&
+          typeof value === 'string' &&
           value.length > 0 &&
           ['first_name', 'last_name', 'email'].includes(key)
       ) as Array<[keyof UpdateUserDTO, string]>;
@@ -146,19 +148,24 @@ export class UserStore {
     try {
       // Get user with password hash
       const sql = 'SELECT password_digest FROM users WHERE id = $1';
-      const result = await query<Pick<User, 'password_digest'>>(sql, [id]);
+      const result = await query<UserRow>(sql, [id]);
 
       if (result.rows.length === 0) {
         throw new Error('User not found');
       }
 
       const user = result.rows[0];
+
+      if (user.password_digest == null || user.password_digest === '') {
+        throw new Error('Password digest not found');
+      }
+
       const pepper = passwordUtils.getPepper();
 
       // Verify current password
       const isValid = await bcrypt.compare(
         passwords.current_password + pepper,
-        user.password_digest!
+        user.password_digest
       );
 
       if (!isValid) {
@@ -173,7 +180,7 @@ export class UserStore {
       );
 
       // Update password
-      const updateResult = await query(
+      const updateResult = await query<UserRow>(
         'UPDATE users SET password_digest = $1 WHERE id = $2 RETURNING id',
         [newHash, id]
       );

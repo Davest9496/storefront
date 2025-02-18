@@ -1,3 +1,18 @@
+import { QueryResultRow } from 'pg';
+
+export interface DatabaseRow extends QueryResultRow {
+  id?: number;
+  [key: string]: unknown;
+}
+
+export interface UserRow extends DatabaseRow {
+  id?: number;
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  password_digest?: string;
+}
+
 export type OrderStatus = 'active' | 'complete';
 export type ProductCategory = 'headphones' | 'speakers' | 'earphones';
 
@@ -56,6 +71,7 @@ export interface UpdatePasswordDTO {
   new_password: string;
 }
 
+export type DatabaseUser = Partial<User> & DatabaseRow;
 
 // DTO interfaces
 export interface CreateProductDTO extends Omit<Product, 'id'> {}
