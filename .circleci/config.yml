@@ -34,8 +34,6 @@ jobs:
               @types/pg@8.11.11 \
               @types/body-parser@1.19.5 \
               @types/jsonwebtoken@9.0.7 \
-              @types/jasmine-spec-reporter@7.0.0 \
-              jasmine-spec-reporter@7.0.0
             cd ..
       - run:
           name: Front-End Build
