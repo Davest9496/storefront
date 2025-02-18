@@ -105,8 +105,7 @@ export class UserStore {
         updates
       ).filter(
         ([key, value]) =>
-          value !== undefined &&
-          typeof value === 'string' &&
+          value !== undefined && typeof value === 'string' &&
           value.length > 0 &&
           ['first_name', 'last_name', 'email'].includes(key)
       ) as Array<[keyof UpdateUserDTO, string]>;
