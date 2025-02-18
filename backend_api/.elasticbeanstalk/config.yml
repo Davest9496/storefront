@@ -1,0 +1,25 @@
+branch-defaults:
+  master:
+    environment: storefront-api-prod
+  main:
+    environment: storefront-api-prod
+  default:
+    environment: storefront-api-prod
+environment-defaults:
+  storefront-api-prod:
+    branch: null
+    repository: null
+global:
+  application_name: storefront-api
+  branch: null
+  default_ec2_keyname: ec2-user
+  default_platform: Node.js 20
+  default_region: us-east-1
+  include_git_submodules: true
+  instance_profile: null
+  platform_name: null
+  platform_version: null
+  profile: null
+  repository: null
+  sc: null
+  workspace_type: Application
