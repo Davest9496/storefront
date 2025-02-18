@@ -3,13 +3,21 @@
 # Exit on error
 set -e
 
-# Load environment variables from .env file
-if [ -f "../../setup_env.sh" ]; then
-  source ../../setup_env.sh
-fi
+# Required environment variables check
+required_vars=(
+  "AWS_BUCKET_NAME"
+  "AWS_DEFAULT_REGION"
+)
 
-BUCKET_NAME="project-058264347310"
-REGION=${AWS_DEFAULT_REGION:-"us-east-1"}
+for var in "${required_vars[@]}"; do
+  if [ -z "${!var}" ]; then
+    echo "❌ Error: Required environment variable $var is not set"
+    exit 1
+  fi
+done
+
+BUCKET_NAME=$AWS_BUCKET_NAME
+REGION=$AWS_DEFAULT_REGION
 DIST_FOLDER="dist/browser"
 
 echo "🔍 Checking bucket existence..."
