@@ -29,8 +29,7 @@
     "start:prod": "NODE_ENV=production npm start"
   },
   "engines": {
-    "node": "20.11.1",
-    "npm": "10.x"
+    "node": "20.x"
   },
   "dependencies": {
     "@types/bcrypt": "^5.0.2",
@@ -68,9 +67,6 @@
     "tsc-alias": "^1.8.10",
     "tsconfig-paths": "^4.2.0",
     "typescript-eslint": "^8.24.1"
-  },
-  "engines": {
-    "node": "20.x"
   },
   "license": "ISC"
 }
