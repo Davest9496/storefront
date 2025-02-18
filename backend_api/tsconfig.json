@@ -6,45 +6,14 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "strict": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "strictBindCallApply": true,
-    "moduleResolution": "node",
     "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
     "resolveJsonModule": true,
-    "sourceMap": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "types": ["node"],
-    "typeRoots": ["./node_modules/@types", "./src/types"],
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"],
-      "@config/*": ["src/config/*"],
-      "@controllers/*": ["src/controllers/*"],
-      "@models/*": ["src/models/*"],
-      "@middleware/*": ["src/middleware/*"],
-      "@routes/*": ["src/routes/*"],
-      "@utils/*": ["src/utils/*"],
-      "@types/*": ["src/types/*"],
-      "@scripts/*": ["src/scripts/*"]
-    }
+    "typeRoots": ["./node_modules/@types"],
+    "baseUrl": "."
   },
   "include": ["src/**/*.ts"],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "**/*.spec.ts",
-    "**/*.test.ts",
-    "tests",
-    "spec",
-    "src/tests",
-    "src/**/*.spec.ts",
-    "src/**/*.test.ts"
-  ]
+  "exclude": ["node_modules", "dist"]
 }
