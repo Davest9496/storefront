@@ -48,9 +48,31 @@ jobs:
       - image: "cimg/python:3.11-node"
     steps:
       - checkout
+      - aws-cli/setup
+      - run:
+          name: Install Node.js
+          command: |
+            curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+            sudo apt-get install -y nodejs
+      - run:
+          name: Install Elastic Beanstalk CLI
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y python3-pip python3-setuptools
+            pip install --upgrade pip
+            pip install --user awsebcli
+            echo 'export PATH=$HOME/.local/bin:$PATH' >> $BASH_ENV
+            source $BASH_ENV
+      - run:
+          name: Verify EB CLI Installation
+          command: |
+            source $BASH_ENV
+            which eb
+            eb --version
       - run:
           name: Set Up Environment Variables
           command: |
+            source $BASH_ENV
             eb setenv \
               POSTGRES_HOST="${POSTGRES_HOST}" \
               POSTGRES_PORT="${POSTGRES_PORT}" \
@@ -68,29 +90,16 @@ jobs:
               AWS_DEFAULT_REGION="${AWS_DEFAULT_REGION}" \
               AWS_BUCKET_NAME="${AWS_BUCKET_NAME}"
             echo "Elastic Beanstalk Environment variables have been set"
-      - aws-cli/setup
-      - run:
-          name: Install Node.js
-          command: |
-            curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-            sudo apt-get install -y nodejs
-      - run:
-          name: Install Elastic Beanstalk CLI
-          command: |
-            sudo apt-get update
-            sudo apt-get install -y python3-pip
-            pip install --user awsebcli
-            echo 'export PATH=$PATH:$HOME/.local/bin' >> $BASH_ENV
-            source $BASH_ENV
-      - run:
-          name: Verify EB CLI Installation
-          command: eb --version
       - run:
           name: Front-End Deploy
-          command: npm run frontend:deploy
+          command: |
+            source $BASH_ENV
+            npm run frontend:deploy
       - run:
           name: Back-End Deploy
-          command: npm run backend:deploy
+          command: |
+            source $BASH_ENV
+            npm run backend:deploy
 
 workflows:
   build-hold-deploy:
