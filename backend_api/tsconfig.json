@@ -33,19 +33,17 @@
       "@utils/*": ["src/utils/*"],
       "@types/*": ["src/types/*"],
       "@scripts/*": ["src/scripts/*"]
-    },
-    "outDir": "./dist",
-    "rootDir": "./src"
+    }
   },
   "include": ["src/**/*.ts"],
   "exclude": [
-    "**/node_modules/**",
-    "**/dist/**",
+    "node_modules",
+    "dist",
     "**/*.spec.ts",
     "**/*.test.ts",
-    "**/tests/**",
-    "**/spec/**",
-    "src/tests/**",
+    "tests",
+    "spec",
+    "src/tests",
     "src/**/*.spec.ts",
     "src/**/*.test.ts"
   ]
