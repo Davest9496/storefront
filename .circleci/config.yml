@@ -28,6 +28,7 @@ jobs:
             rm -rf node_modules
             npm cache clean --force
             npm ci
+            npm install --save-dev @types/node@22.13.1
             cd ..
       - run:
           name: Front-End Build
