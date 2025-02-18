@@ -1,9 +1,0 @@
-.git
-.gitignore
-.angular
-node_modules
-.editorconfig
-README.md
-*.spec.ts
-e2e
-coverage
