@@ -51,6 +51,11 @@ POLICY='{
 echo "$POLICY" | aws s3api put-bucket-policy --bucket $BUCKET_NAME --policy file:///dev/stdin
 
 echo "🏗️ Building application..."
+rm -rf node_modules package-lock.json
+npm cache clean --force
+npm install
+npm install @angular-devkit/build-angular --save-dev
+sudo npm link @angular/cli
 npm run build
 
 echo "🚀 Deploying to S3..."
